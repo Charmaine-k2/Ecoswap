@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Delivery</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <nav>
+        <h2>Admin Panel</h2>
+        <a href="/admin_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/manage_user"><i class="fas fa-users"></i> Manage Users</a>
+        <a href="/manage_items"><i class="fas fa-box"></i> Manage Items</a>
+        <a href="/donation_requests"><i class="fas fa-hand-holding-heart"></i> Donation Requests</a>
+        <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+        <a href="/logistic"><i class="fas fa-recycle"></i> Delivery tracking</a>
+         </div>
+        <div>
+       
+        <a href="/login" class="logout-btn"
+          ><i class="fas fa-sign-out-alt"></i> Logout</a
+        >
+      </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Schedule Delivery</h1>
+            <p>Enter the delivery details for the item.</p>
+        </header>
+
+        <div class="delivery-form">
+            <h2>Item: {{ item.name }}</h2>
+            <form method="POST" action="{% url 'schedule_delivery' item.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="delivery_address">Delivery Address:</label>
+                    <textarea id="delivery_address" name="delivery_address" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="delivery_date">Delivery Date:</label>
+                    <input type="datetime-local" id="delivery_date" name="delivery_date" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="approve-btn">Schedule Delivery</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to EcoSwap</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-green: #2e7d32;
+        --accent-green: #50c054ff;
+        --light-green: #54d85bff;
+        --dark-green: #1b5e20;
+        --background-light: #f1f8e9;
+        --text-dark: #263238;
+        --text-light: #f5f5f5;
+
+        /* Light theme variables */
+        --bg-color: #f1f8e9;
+        --card-bg: #ffffff;
+        --text-color: #263238;
+        --navbar-bg: var(--primary-green);
+        --footer-bg: var(--dark-green);
+        --hero-gradient: linear-gradient(135deg, #238f2cff 0%, #f1f8e9 100%);
+        --modal-bg: #ffffff;
+        --border-color: rgba(0, 0, 0, 0.1);
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --navbar-bg: #1b5e20;
+        --footer-bg: #0d2e11;
+        --hero-gradient: linear-gradient(135deg, #1a3c1e 0%, #121212 100%);
+        --modal-bg: #2d2d2d;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-dark: #e0e0e0;
+        --background-light: #1a1a1a;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+
+      .toggle-switch {
+        width: 36px;
+        height: 18px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 9px;
+        position: relative;
+        transition: background-color 0.3s;
+      }
+
+      .toggle-switch.active {
+        background-color: var(--accent-green);
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background-color: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(18px);
+      }
+
+      .toggle-label {
+        font-size: 12px;
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      /* Page Loader */
+      #page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 3000;
+        transition: opacity 0.5s ease, visibility 0.5s;
+      }
+      #page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #page-loader i {
+        font-size: 4rem;
+        color: var(--primary-green);
+        animation: spin 2s linear infinite;
+        margin-bottom: 1rem;
+      }
+      .loader-bar {
+        width: 200px;
+        height: 8px;
+        background: rgba(220, 237, 200, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .loader-fill {
+        width: 0%;
+        height: 100%;
+        background: var(--primary-green);
+        border-radius: 4px;
+        animation: load-fill 3s linear forwards;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes load-fill {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      /* Navbar */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: var(--navbar-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 3rem;
+        color: var(--text-light);
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      .navbar.scrolled {
+        background-color: rgba(27, 94, 32, 0.95);
+        padding: 1rem 3rem;
+      }
+      .navbar .logo {
+        font-size: 1.6rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+      .navbar .logo i {
+        margin-right: 10px;
+        color: var(--accent-green);
+        animation: rotate 8s linear infinite;
+      }
+      .navbar .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .navbar .nav-links a {
+        color: var(--text-light);
+        text-decoration: none;
+        font-weight: 500;
+        position: relative;
+        transition: 0.3s;
+        padding: 8px 12px;
+        border-radius: 6px;
+      }
+      .navbar .nav-links a:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Hero Section */
+      .hero-section {
+        position: relative;
+        text-align: center;
+        padding: 12rem 2rem 6rem;
+        background: var(--hero-gradient);
+        overflow: hidden;
+      }
+      .hero-content {
+        max-width: 700px;
+        margin: 0 auto;
+        animation: fadeIn 1.5s ease forwards;
+      }
+      .hero-content h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+        line-height: 1.2;
+      }
+      .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: var(--text-dark);
+        opacity: 0.9;
+      }
+      .cta-buttons a {
+        display: inline-block;
+        margin: 0.5rem;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        color: white;
+        background-color: var(--primary-green);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+        transition: all 0.3s;
+        border: none;
+      }
+      .cta-buttons a.secondary {
+        background: transparent;
+        color: var(--primary-green);
+        border: 2px solid var(--primary-green);
+      }
+      .cta-buttons a:hover {
+        background-color: var(--dark-green);
+        transform: translateY(-3px);
+      }
+      .cta-buttons a.secondary:hover {
+        background-color: var(--primary-green);
+        color: white;
+      }
+
+      /* Chatbot Button */
+      .chatbot-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-green);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.4);
+        cursor: pointer;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        animation: levitate 3s ease-in-out infinite, pulse 2s infinite;
+        text-decoration: none;
+        border: none;
+        outline: none;
+      }
+      .chatbot-button:hover {
+        transform: scale(1.1);
+        background-color: var(--dark-green);
+        box-shadow: 0 6px 25px rgba(46, 125, 50, 0.6);
+        animation: levitate-hover 1.5s ease-in-out infinite, pulse 2s infinite;
+      }
+      .chatbot-button i {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+      .chatbot-button.active i {
+        transform: rotate(360deg);
+      }
+      @keyframes levitate {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes levitate-hover {
+        0%,
+        100% {
+          transform: translateY(-5px) scale(1.1);
+        }
+        50% {
+          transform: translateY(-15px) scale(1.1);
+        }
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+        }
+      }
+
+      /* Chatbot Modal */
+      .chatbot-modal {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 400px;
+        height: 600px;
+        background: var(--modal-bg);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+      .chatbot-modal.active {
+        display: flex;
+        transform: scale(1);
+        opacity: 1;
+        animation: modalAppear 0.3s ease;
+      }
+      .chatbot-modal.closing {
+        animation: modalDisappear 0.3s ease forwards;
+      }
+      @keyframes modalAppear {
+        0% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes modalDisappear {
+        0% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+      }
+      .chatbot-header {
+        background-color: var(--primary-green);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .chatbot-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      .close-chatbot {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+      }
+      .close-chatbot:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .chatbot-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Leaves Animation */
+      .leaf {
+        position: absolute;
+        z-index: 1;
+        opacity: 0.4;
+        animation: float 8s ease-in-out infinite;
+        filter: brightness(0.8);
+      }
+      .leaf-1 {
+        top: 10%;
+        left: 5%;
+        width: 80px;
+        transform: rotate(15deg);
+      }
+      .leaf-2 {
+        top: 25%;
+        right: 8%;
+        width: 60px;
+        transform: rotate(-10deg);
+      }
+      .leaf-3 {
+        bottom: 20%;
+        left: 15%;
+        width: 70px;
+        transform: rotate(5deg);
+      }
+      .leaf-4 {
+        bottom: 10%;
+        right: 12%;
+        width: 50px;
+        transform: rotate(-15deg);
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-15px) rotate(5deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
+
+      /* Features Section */
+      .features {
+        padding: 6rem 2rem;
+        text-align: center;
+        background-color: var(--bg-color);
+      }
+      .features h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+        color: var(--text-dark);
+      }
+      .feature-cards {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+      }
+      .feature-card {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 12px;
+        width: 280px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+      }
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      }
+      .feature-card i {
+        font-size: 2rem;
+        color: var(--primary-green);
+        margin-bottom: 0.8rem;
+      }
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+      }
+      .feature-card p {
+        font-size: 1rem;
+        color: var(--text-color);
+        line-height: 1.5;
+        opacity: 0.8;
+      }
+
+      /* Footer */
+      footer {
+        background: var(--footer-bg);
+        color: var(--text-light);
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+      .footer-links,
+      .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+      .footer-links a,
+      .social-icons a {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: 0.3s;
+        padding: 8px 12px;
+        border-radius: 6px;
+      }
+      .footer-links a:hover,
+      .social-icons a:hover {
+        color: var(--accent-green);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Modals */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        background: var(--modal-bg);
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+      }
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-color);
+        opacity: 0.7;
+        transition: opacity 0.3s;
+      }
+      .close-modal:hover {
+        opacity: 1;
+      }
+
+      /* Animations */
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          padding: 1rem;
+          gap: 1rem;
+        }
+        .navbar .nav-links {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        .hero-section {
+          padding: 8rem 1rem 4rem;
+        }
+        .cta-buttons a {
+          margin: 0.5rem 0;
+        }
+        .feature-cards {
+          flex-direction: column;
+          align-items: center;
+        }
+        .theme-toggle {
+          margin-left: 0;
+        }
+        .chatbot-button {
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+        }
+        .chatbot-modal {
+          width: 95%;
+          height: 70%;
+          right: 2.5%;
+          bottom: 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page Loader -->
+    <div id="page-loader">
+      <i class="fas fa-recycle"></i>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="logo"><i class="fas fa-recycle"></i> EcoSwap</div>
+      <div class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#" id="queries-link">Queries</a>
+        <a href="#" id="info-link">Info</a>
+        <a href="{% url 'login' %}" class="login-link">Sign In</a>
+        <div class="theme-toggle" id="themeToggle">
+          <div class="toggle-switch" id="toggleSwitch"></div>
+          <span class="toggle-label">Dark</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1>Welcome to EcoSwap</h1>
+        <p>
+          Donate, Trade, and Reuse! Join our community to make the world greener
+          and cleaner.
+        </p>
+        <div class="cta-buttons">
+          <a href="{% url 'login' %}" class="login-link">Sign In</a>
+          <a href="#about" class="secondary">Learn More</a>
+        </div>
+      </div>
+
+      <img
+        src="{% static 'images/leaf.png' %}"
+        class="leaf leaf-1"
+        alt="Leaf"
+      />
+      <img
+        src="{% static 'images/leaf2.png' %}"
+        class="leaf leaf-2"
+        alt="Leaf"
+      />
+      <img
+        src="{% static 'images/leaf3.png' %}"
+        class="leaf leaf-3"
+        alt="Leaf"
+      />
+      <img
+        src="{% static 'images/leaf4.png' %}"
+        class="leaf leaf-4"
+        alt="Leaf"
+      />
+    </section>
+
+    <!-- Features Section -->
+    <section id="about" class="features">
+      <h2>Why Choose EcoSwap?</h2>
+      <div class="feature-cards">
+        <div class="feature-card">
+          <i class="fas fa-leaf"></i>
+          <h3>Sustainable Living</h3>
+          <p>Give your items a second life and reduce environmental waste.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-hands-helping"></i>
+          <h3>Community Building</h3>
+          <p>Connect with others who care about sustainability and sharing.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-coins"></i>
+          <h3>Cost Effective</h3>
+          <p>Save money through donations and trades instead of buying new.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="#about">About</a>
+        <a href="#" id="footer-queries-link">Queries</a>
+        <a href="#" id="footer-info-link">Info</a>
+        <a href="{% url 'login' %}" class="login-link">Sign In</a>
+        <a href="#" id="footer-chat-link">Chat with Us</a>
+      </div>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+      </div>
+      <div>&copy; 2025 EcoSwap. All rights reserved.</div>
+    </footer>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-button" id="chatbotButton">
+      <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+      <div class="chatbot-header">
+        <h3>EcoSwap Assistant</h3>
+        <button class="close-chatbot" id="closeChatbot">&times;</button>
+      </div>
+      <iframe
+        src="https://www.chatbase.co/chatbot-iframe/jE7sP4KVvNWKe6x30kWTx"
+        class="chatbot-iframe"
+        frameborder="0"
+      ></iframe>
+    </div>
+
+    <!-- Queries Modal -->
+    <div class="modal" id="queries-modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>Queries</h3>
+        <p>Contact us with your questions about EcoSwap services.</p>
+        <p style="margin-top: 15px">
+          <a
+            href="#"
+            id="modal-chat-link"
+            style="color: var(--primary-green); text-decoration: underline"
+          >
+            Or chat with our AI assistant for immediate help
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal" id="info-modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>Information</h3>
+        <p>Learn more about our mission and sustainability initiatives.</p>
+        <p style="margin-top: 15px">
+          <a
+            href="#"
+            id="modal-info-chat-link"
+            style="color: var(--primary-green); text-decoration: underline"
+          >
+            Ask our AI assistant about EcoSwap
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleSwitch = document.getElementById("toggleSwitch");
+      const body = document.body;
+
+      // Check for saved theme preference or default to light
+      const currentTheme = localStorage.getItem("theme") || "light";
+
+      if (currentTheme === "dark") {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        if (body.getAttribute("data-theme") === "dark") {
+          body.removeAttribute("data-theme");
+          toggleSwitch.classList.remove("active");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          toggleSwitch.classList.add("active");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const loader = document.getElementById("page-loader");
+
+        // Hide loader after page load
+        window.addEventListener("load", () => {
+          setTimeout(() => loader.classList.add("hidden"), 1500);
+        });
+
+        // Login animation
+        document.querySelectorAll(".login-link").forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            loader.classList.remove("hidden");
+            const fill = loader.querySelector(".loader-fill");
+            fill.style.animation = "none";
+            void fill.offsetWidth;
+            fill.style.animation = "load-fill 1.5s linear forwards";
+            setTimeout(() => {
+              window.location.href = link.href;
+            }, 1500);
+          });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener("scroll", () => {
+          const navbar = document.querySelector(".navbar");
+          if (window.scrollY > 50) navbar.classList.add("scrolled");
+          else navbar.classList.remove("scrolled");
+        });
+
+        // Chatbot functionality
+        const chatbotButton = document.getElementById("chatbotButton");
+        const chatbotModal = document.getElementById("chatbotModal");
+        const closeChatbot = document.getElementById("closeChatbot");
+        let isChatbotOpen = false;
+
+        function openChatbot() {
+          isChatbotOpen = true;
+          chatbotButton.classList.add("active");
+          chatbotModal.classList.add("active");
+          chatbotModal.classList.remove("closing");
+        }
+
+        function closeChatbotModal() {
+          isChatbotOpen = false;
+          chatbotButton.classList.remove("active");
+          chatbotModal.classList.add("closing");
+          setTimeout(() => {
+            chatbotModal.classList.remove("active");
+            chatbotModal.classList.remove("closing");
+          }, 300);
+        }
+
+        chatbotButton.addEventListener("click", () => {
+          if (isChatbotOpen) {
+            closeChatbotModal();
+          } else {
+            openChatbot();
+          }
+        });
+
+        closeChatbot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeChatbotModal();
+        });
+
+        // Close chatbot when clicking outside
+        window.addEventListener("click", (e) => {
+          if (
+            isChatbotOpen &&
+            !chatbotModal.contains(e.target) &&
+            e.target !== chatbotButton
+          ) {
+            closeChatbotModal();
+          }
+        });
+
+        // Chat links in footer and modals
+        document
+          .querySelectorAll(
+            "#footer-chat-link, #modal-chat-link, #modal-info-chat-link"
+          )
+          .forEach((link) => {
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              // Close other modals
+              queriesModal.classList.remove("active");
+              infoModal.classList.remove("active");
+              document.body.style.overflow = "auto";
+              // Open chatbot
+              openChatbot();
+            });
+          });
+
+        // Modal functionality
+        const queriesModal = document.getElementById("queries-modal");
+        const infoModal = document.getElementById("info-modal");
+        document
+          .querySelectorAll("#queries-link,#footer-queries-link")
+          .forEach((link) => {
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              queriesModal.classList.add("active");
+              document.body.style.overflow = "hidden";
+            });
+          });
+        document
+          .querySelectorAll("#info-link,#footer-info-link")
+          .forEach((link) => {
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              infoModal.classList.add("active");
+              document.body.style.overflow = "hidden";
+            });
+          });
+        document.querySelectorAll(".close-modal").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            queriesModal.classList.remove("active");
+            infoModal.classList.remove("active");
+            document.body.style.overflow = "auto";
+          });
+        });
+        window.addEventListener("click", (e) => {
+          if (e.target === queriesModal || e.target === infoModal) {
+            e.target.classList.remove("active");
+            document.body.style.overflow = "auto";
+          }
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute("href"));
+            if (target)
+              window.scrollTo({
+                top: target.offsetTop - 80,
+                behavior: "smooth",
+              });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

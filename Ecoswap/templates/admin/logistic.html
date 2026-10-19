@@ -1,0 +1,362 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>EcoSwap Admin Dashboard - Delivery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100%;
+            background-color: #013220;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar a:hover {
+            background-color: #025f2b;
+        }
+
+        .sidebar a.active {
+            background-color: #027c37;
+        }
+
+        .sidebar i {
+            font-size: 1.1rem;
+        }
+      .logout-btn {
+        color: #e53935;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+      }
+      .logout-btn:hover {
+        background: rgba(229, 57, 53, 0.1);
+        color: #c62828;
+      }
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #02411c;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
+        }
+
+        .form-section h2 {
+            font-size: 1.8rem;
+            color: #02411c;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        #map {
+            height: 100px;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        button[type="submit"] {
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background: #46d385;
+        }
+
+        ul {
+            margin-top: 20px;
+            color: green;
+            font-weight: 500;
+        }
+
+        .location-search {
+            display: flex;
+            align-items: center;
+        }
+
+        #location-input {
+            flex: 1;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        #search-btn {
+            background-color: #046444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 50%;
+        }
+
+        #search-btn:hover {
+            background-color: #a1f17c;
+        }
+
+        .delivery-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .delivery-table th, .delivery-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .delivery-table th {
+            background-color: #e6f4ea;
+        }
+
+        .delivery-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body class="{{ user.theme|default:'light' }}">
+    <div class="sidebar {{ user.theme|default:'light' }}">
+        <h2>EcoSwap Admin</h2>
+         <a href="/admin_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/manage_user"><i class="fas fa-users"></i> Manage Users</a>
+        <a href="/manage_items"><i class="fas fa-recycle"></i> Manage Items</a>
+        <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+        <a href="/admin_dashboard/logistic" class="active"><i class="fas fa-truck"></i> Delivery Tracking</a>
+        <a href="/login" class="logout-btn"
+          ><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <div class="dashboard-header">
+            <h1>Delivery Scheduler</h1>
+            <div class="profile">
+                <img src="{% static 'images/default-avatar.png' %}" alt="Admin Profile">
+                <span><h4>{{ user.username }}</h4></span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>📦 Schedule a Delivery</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group"><label>Driver:</label><input type="text" name="driver" required></div>
+                <div class="form-group"><label>Customer Name:</label><input type="text" name="customer_name" required></div>
+                <div class="form-group"><label>Address:</label><input type="text" name="address" required></div>
+                <div class="form-group"><label>Contact Number:</label><input type="text" name="contact_number" required></div>
+                <div class="form-group"><label>Delivery Item(s):</label><input type="text" name="delivery_items" required></div>
+                <div class="form-group"><label>Item(s) to Pick Up:</label><input type="text" name="pickup_items"></div>
+                <div class="form-group"><label>Date:</label><input type="date" name="delivery_date" required></div>
+                <div class="form-group"><label>Time:</label><input type="time" name="delivery_time" required></div>
+                <div class="location-search">
+                    <input id="location-input" type="text" name="location" placeholder="Search location..." autocomplete="off" />
+                    <button id="search-btn" type="button"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="map"></div>
+                <div> <button type="submit">Schedule Delivery</button></div>
+               
+            </form>
+
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-section">
+            <h2>📋 Scheduled Deliveries</h2>
+            <table class="delivery-table">
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Customer</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Items</th>
+                        <th>Pickup</th>
+                        <th>Location</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in deliveries %}
+                        <tr>
+                            <td>{{ delivery.driver }}</td>
+                            <td>{{ delivery.customer_name }}</td>
+                            <td>{{ delivery.address }}</td>
+                            <td>{{ delivery.contact_number }}</td>
+                                                       <td>{{ delivery.delivery_items }}</td>
+                            <td>{{ delivery.pickup_items }}</td>
+                            <td>{{ delivery.location }}</td>
+                            <td>{{ delivery.delivery_date }}</td>
+                            <td>{{ delivery.delivery_time }}</td>
+                            <td>{{ delivery.status }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="10">No deliveries scheduled.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let marker;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: -28.4793, lng: 24.6727 },
+                zoom: 12,
+            });
+
+            const input = document.getElementById("location-input");
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['geocode'],
+                fields: ['geometry', 'name'],
+            });
+
+            autocomplete.bindTo("bounds", map);
+
+            marker = new google.maps.Marker({
+                map,
+                anchorPoint: new google.maps.Point(0, -29),
+            });
+
+            autocomplete.addListener("place_changed", () => {
+                marker.setVisible(false);
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    alert("No details available for input: '" + place.name + "'");
+                    return;
+                }
+
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+                marker.setPosition(place.geometry.location);
+                marker.setVisible(true);
+            });
+        }
+
+        window.initMap = initMap;
+
+    
+        document.getElementById("search-btn").addEventListener("click", () => {
+            const input = document.getElementById("location-input").value;
+            const geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ address: input }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    const location = results[0].geometry.location;
+                    map.setCenter(location);
+                    map.setZoom(15);
+                    marker.setPosition(location);
+                    marker.setVisible(true);
+                } else {
+                    alert("Location not found: " + status);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

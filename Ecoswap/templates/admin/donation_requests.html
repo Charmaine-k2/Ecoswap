@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoSwap Admin - Donation Requests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --accent: #81c784;
+    --dark: #263238;
+    --light-bg: #e8f5e9;
+    --white: #fff;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    /* Dark mode variables */
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-color: #263238;
+    --sidebar-bg: linear-gradient(135deg, #01220f, #063f1e);
+    --sidebar-text: white;
+    --input-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --hover-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --sidebar-bg: linear-gradient(135deg, #1b5e20, #2e7d32);
+    --sidebar-text: #e0e0e0;
+    --input-bg: #2d2d2d;
+    --border-color: #333333;
+    --hover-color: rgba(255, 255, 255, 0.05);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Basic layout */
+body {
+    align-items: center;
+   
+    font-family: "Poppins", sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Sidebar */
+.sidebar {
+        width: 250px;
+        background: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: fixed;
+        height: 100vh;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+      }
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+}
+.logo h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--sidebar-text);
+    margin-top: 10px;
+}
+.logo .recycling-logo {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+.logo .recycling-arrow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid var(--sidebar-text);
+    border-radius: 50%;
+    animation: rotate 5s linear infinite;
+}
+.logo .recycling-arrow::before {
+    content: "♻";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: var(--sidebar-text);
+}
+
+.sidebar a {
+        display: flex;
+        align-items: center;
+        color: var(--sidebar-text);
+        text-decoration: none;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .sidebar a i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+      }
+.sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+}
+
+.logout-btn {
+    color: #e53935;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+.logout-btn:hover {
+    background: rgba(229, 57, 53, 0.1);
+    color: #c62828;
+}
+
+/* Content */
+.content {
+    margin-left: 250px;
+    padding: 30px;
+    width: calc(100% - 250px);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: center;
+    margin-top: 1px;
+    font-size: 2rem; 
+    color: var(--primary);
+    font-weight: 400px;
+}
+
+/* Donation Table */
+.donation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.donation-table th, .donation-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.donation-table th {
+    background-color: var(--card-bg);
+}
+
+.btn {
+    padding: 5px 10px;
+    margin: 2px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn-success {
+    background-color: #28a745;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+.status-msg {
+    font-weight: bold;
+}
+
+.no-requests {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* Adjust height as needed */
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--primary-dark);
+    background-color: var(--light-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+/* Modal Styles */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+}
+
+.modal-content .close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-content .btn {
+    margin: 10px 5px;
+}
+
+</style>
+
+<div class="sidebar">
+  <div>
+    <div class="logo">
+      <div class="recycling-logo"><div class="recycling-arrow"></div></div>
+      <h2>EcoSwap Admin</h2>
+    </div>
+    <a href="/admin_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/manage_user" class="active"><i class="fas fa-users"></i> Manage Users</a>
+    <a href="/manage_items"><i class="fas fa-recycle"></i> Manage Items</a>
+    <a href="/donation_requests"><i class="fas fa-hand-holding-heart"></i> Donation Requests</a>
+    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+    <a href="/logistic"><i class="fas fa-truck"></i> Delivery tracking</a>
+  </div>
+  <div>
+   
+    <a href="/login" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+</div>
+
+<div class="content">
+    <div class="dashboard-header">
+        <h1>Donation Requests</h1>
+    </div>
+
+    <div class="container">
+        {% if donation_requests %}
+            <table class="donation-table">
+                <thead>
+                    <tr>
+                        <th>Requester</th>
+                        <th>Item</th>
+                        <th>Listed by</th>
+                        <th>Organization</th>
+                        <th>Reason</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in donation_requests %}
+                    <tr>
+                        <td>{{ request.full_name }}</td>
+                        <td>{{ request.item.name }}</td>
+                        <td>{{ request.item.owner.username }}</td>
+                        <td>{{ request.organization }}</td>
+                        <td>{{ request.reason }}</td>
+                        <td>
+                            Email: {{ request.email }}<br>
+                            Phone: {{ request.phone }}
+                        </td>
+                        <td>
+                            {{ request.address }}<br>
+                            {{ request.city }}, {{ request.postal_code }}
+                        </td>
+                        <td>{{ request.status|title }}</td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                                <button type="button" class="btn btn-success" onclick="openApproveModal({{ request.id }})">
+                                Approve
+                              </button>
+                                <button type="button" class="btn btn-danger" onclick="openDeclineModal({{ request.id }})">
+                               Decline
+                               </button>
+                            {% else %}
+                                <span class="status-msg">{{ request.status|title }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+          <div class="no-requests">
+  <p>No donation requests at the moment.</p>
+</div>
+        {% endif %}
+    </div>
+
+</div>
+
+
+ <!-- Decline Confirmation Modal -->
+<div id="declineModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeclineModal()">&times;</span>
+        <h3>Confirm Decline</h3>
+        <p>Are you sure you want to decline this donation request?</p>
+        <form id="declineForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Decline</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDeclineModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+<div id="approveModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeApproveModal()">&times;</span>
+        <h3>Confirm Approval</h3>
+        <p>Are you sure you want to approve this donation request?</p>
+        <form id="approveForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Yes, Approve</button>
+            <button type="button" class="btn btn-secondary" onclick="closeApproveModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openApproveModal(requestId) {
+    const modal = document.getElementById("approveModal");
+    const form = document.getElementById("approveForm");
+    form.action = `/donation_requests/approve/${requestId}/`; 
+    modal.style.display = "block";
+}
+
+function closeApproveModal() {
+    document.getElementById("approveModal").style.display = "none";
+}
+
+function openDeclineModal(requestId) {
+    const modal = document.getElementById("declineModal");
+    const form = document.getElementById("declineForm");
+    form.action = `/donation_requests/decline/${requestId}/`;
+    modal.style.display = "block";
+}
+
+function closeDeclineModal() {
+    document.getElementById("declineModal").style.display = "none";
+}
+
+// Close modals if clicked outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById("approveModal")) {
+        closeApproveModal();
+    }
+    if (event.target == document.getElementById("declineModal")) {
+        closeDeclineModal();
+    }
+}
+</script>
+
+
+</body>
+</html>
+

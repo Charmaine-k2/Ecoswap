@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoSwap Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-green: #2e7d32;
+        --light-green: #81c784;
+        --dark-green: #1b5e20;
+        --accent-green: #a5d6a7;
+        --background-light: #f1f8e9;
+        --text-dark: #263238;
+        --text-light: #f5f5f5;
+
+        /* Light theme variables */
+        --bg-color: linear-gradient(
+          135deg,
+          var(--light-green),
+          var(--primary-green),
+          var(--dark-green)
+        );
+        --card-bg: #ffffffdd;
+        --text-color: #263238;
+        --input-bg: #ffffff;
+        --border-color: #ccc;
+        --link-color: var(--primary-green);
+      }
+
+      [data-theme="dark"] {
+        --bg-color: linear-gradient(135deg, #1a3c1e, #1b5e20, #0d2e11);
+        --card-bg: #1e1e1edd;
+        --text-color: #e0e0e0;
+        --input-bg: #2d2d2d;
+        --border-color: #444;
+        --link-color: #81c784;
+        --text-dark: #e0e0e0;
+        --dark-green: #81c784;
+      }
+
+      * {
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+
+      /* Background gradient animation */
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: var(--bg-color);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: var(--text-color);
+      }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+      }
+
+      .toggle-switch {
+        width: 40px;
+        height: 20px;
+        background-color: #ccc;
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .toggle-switch.active {
+        background-color: var(--primary-green);
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background-color: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(20px);
+      }
+
+      .toggle-label {
+        font-size: 12px;
+        color: var(--text-color);
+        font-weight: 500;
+      }
+
+      /* Login card */
+      .login-card {
+        background-color: var(--card-bg);
+        padding: 40px 35px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        width: 100%;
+        max-width: 380px;
+        animation: fadeInUp 1s ease forwards;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* Logo */
+      .logo {
+        font-size: 48px;
+        font-weight: 700;
+        color: var(--primary-green);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        animation: logoSpin 8s linear infinite;
+        color: var(--accent-green);
+      }
+
+      .logo:hover i {
+        animation: logoSpin 2s linear infinite;
+        color: #d4edda;
+      }
+
+      @keyframes logoSpin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      h2 {
+        margin-bottom: 25px;
+        color: var(--dark-green);
+      }
+
+      /* Inputs */
+      .input-group {
+        margin: 15px 0;
+        position: relative;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      select {
+        width: 90%;
+        padding: 10px 35px 10px 12px;
+        font-size: 0.95rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: "Poppins", sans-serif;
+        transition: all 0.3s ease;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--primary-green);
+        outline: none;
+        box-shadow: 0 0 8px rgba(46, 125, 50, 0.3);
+      }
+
+      input::placeholder {
+        color: var(--text-color);
+        opacity: 0.7;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-color);
+        opacity: 0.7;
+        transition: color 0.3s ease;
+      }
+
+      .toggle-password:hover {
+        color: var(--primary-green);
+        opacity: 1;
+      }
+
+      /* Button */
+      button {
+        width: 100%;
+        background: linear-gradient(
+          to right,
+          var(--primary-green),
+          var(--light-green)
+        );
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        animation: pulse 2s infinite;
+      }
+
+      button:hover {
+        background: linear-gradient(
+          to right,
+          var(--light-green),
+          var(--primary-green)
+        );
+        transform: scale(1.03);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .form-links {
+        margin-top: 15px;
+        font-size: 14px;
+      }
+
+      .form-links a {
+        color: var(--link-color);
+        text-decoration: none;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+      }
+
+      .form-links a:hover {
+        color: var(--dark-green);
+        text-decoration: underline;
+      }
+
+      .form-links p {
+        color: var(--text-color);
+        margin: 8px 0;
+      }
+
+      .error {
+        color: #ff6b6b;
+        font-size: 0.9em;
+        margin-top: 10px;
+        background: rgba(255, 107, 107, 0.1);
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+      }
+
+      /* Back to Home */
+      .back-home {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--link-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .back-home:hover {
+        color: var(--dark-green);
+        text-decoration: underline;
+      }
+
+      /* Chatbot Button */
+      .chatbot-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-green);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.4);
+        cursor: pointer;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        animation: levitate 3s ease-in-out infinite, pulse-chat 2s infinite;
+        text-decoration: none;
+        border: none;
+        outline: none;
+      }
+      .chatbot-button:hover {
+        transform: scale(1.1);
+        background-color: var(--dark-green);
+        box-shadow: 0 6px 25px rgba(46, 125, 50, 0.6);
+        animation: levitate-hover 1.5s ease-in-out infinite,
+          pulse-chat 2s infinite;
+      }
+      .chatbot-button i {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+      .chatbot-button.active i {
+        transform: rotate(360deg);
+      }
+      @keyframes levitate {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes levitate-hover {
+        0%,
+        100% {
+          transform: translateY(-5px) scale(1.1);
+        }
+        50% {
+          transform: translateY(-15px) scale(1.1);
+        }
+      }
+      @keyframes pulse-chat {
+        0% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+        }
+      }
+
+      /* Chatbot Modal */
+      .chatbot-modal {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 400px;
+        height: 600px;
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+      .chatbot-modal.active {
+        display: flex;
+        transform: scale(1);
+        opacity: 1;
+        animation: modalAppear 0.3s ease;
+      }
+      .chatbot-modal.closing {
+        animation: modalDisappear 0.3s ease forwards;
+      }
+      @keyframes modalAppear {
+        0% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes modalDisappear {
+        0% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+      }
+      .chatbot-header {
+        background-color: var(--primary-green);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .chatbot-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      .close-chatbot {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+      }
+      .close-chatbot:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .chatbot-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      @media (max-width: 480px) {
+        .login-card {
+          padding: 30px 20px;
+          margin: 20px;
+        }
+
+        .theme-toggle {
+          position: relative;
+          top: 0;
+          right: 0;
+          justify-content: center;
+          margin-bottom: 15px;
+        }
+
+        .chatbot-button {
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+        }
+        .chatbot-modal {
+          width: 95%;
+          height: 70%;
+          right: 2.5%;
+          bottom: 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+      <div class="toggle-switch" id="toggleSwitch"></div>
+      <span class="toggle-label">Dark Mode</span>
+    </div>
+
+    <div class="login-card">
+      <div class="logo"><i class="fas fa-recycle"></i> EcoSwap</div>
+      <h2>Sign In</h2>
+      <div id="errorMessages" class="error" style="display: none"></div>
+      <form method="POST" onsubmit="return validateForm(event)">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" name="username" placeholder="Username" required />
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+        <div class="input-group">
+          <select name="role" required>
+            <option value="" disabled selected>Select your role</option>
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+          </select>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+
+      <div class="form-links">
+        <p><a href="{% url 'forgot_pass' %}">Forgot password?</a></p>
+        <p>
+          Don't have an account?
+          <a href="{% url 'register' %}">Register here</a>
+        </p>
+      </div>
+
+      <a href="{% url 'home' %}" class="back-home">← Back to Home</a>
+    </div>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-button" id="chatbotButton">
+      <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+      <div class="chatbot-header">
+        <h3>EcoSwap Assistant</h3>
+        <button class="close-chatbot" id="closeChatbot">&times;</button>
+      </div>
+      <iframe
+        src="https://www.chatbase.co/chatbot-iframe/jE7sP4KVvNWKe6x30kWTx"
+        class="chatbot-iframe"
+        frameborder="0"
+      ></iframe>
+    </div>
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleSwitch = document.getElementById("toggleSwitch");
+      const body = document.body;
+
+      // Check for saved theme preference or default to light
+      const currentTheme = localStorage.getItem("theme") || "light";
+
+      if (currentTheme === "dark") {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        if (body.getAttribute("data-theme") === "dark") {
+          body.removeAttribute("data-theme");
+          toggleSwitch.classList.remove("active");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          toggleSwitch.classList.add("active");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+
+      const togglePassword = document.querySelector("#togglePassword");
+      const password = document.querySelector("#password");
+
+      togglePassword.addEventListener("click", function () {
+        const type =
+          password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
+      });
+
+      function validateForm(event) {
+        const username = document.querySelector('input[name="username"]').value;
+        const passwordVal = password.value;
+        const role = document.querySelector('select[name="role"]').value;
+        const errorMessages = document.getElementById("errorMessages");
+
+        errorMessages.style.display = "none";
+        errorMessages.innerHTML = "";
+
+        if (!username || !passwordVal || !role) {
+          errorMessages.innerHTML = "All fields are required.";
+          errorMessages.style.display = "block";
+          return false;
+        }
+        return true;
+      }
+
+      // Chatbot functionality
+      const chatbotButton = document.getElementById("chatbotButton");
+      const chatbotModal = document.getElementById("chatbotModal");
+      const closeChatbot = document.getElementById("closeChatbot");
+      let isChatbotOpen = false;
+
+      function openChatbot() {
+        isChatbotOpen = true;
+        chatbotButton.classList.add("active");
+        chatbotModal.classList.add("active");
+        chatbotModal.classList.remove("closing");
+      }
+
+      function closeChatbotModal() {
+        isChatbotOpen = false;
+        chatbotButton.classList.remove("active");
+        chatbotModal.classList.add("closing");
+        setTimeout(() => {
+          chatbotModal.classList.remove("active");
+          chatbotModal.classList.remove("closing");
+        }, 300);
+      }
+
+      chatbotButton.addEventListener("click", () => {
+        if (isChatbotOpen) {
+          closeChatbotModal();
+        } else {
+          openChatbot();
+        }
+      });
+
+      closeChatbot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeChatbotModal();
+      });
+
+      // Close chatbot when clicking outside
+      window.addEventListener("click", (e) => {
+        if (
+          isChatbotOpen &&
+          !chatbotModal.contains(e.target) &&
+          e.target !== chatbotButton
+        ) {
+          closeChatbotModal();
+        }
+      });
+    </script>
+  </body>
+</html>

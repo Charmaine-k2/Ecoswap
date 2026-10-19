@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - EcoSwap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #50db73;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-actions {
+            text-align: center;
+        }
+
+        .form-back {
+            background-color: #fdfffe;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .form-back a {
+            color: #05581a;
+            text-decoration: none;
+        }
+        .form-back a:hover {
+            text-decoration: underline;
+            background-color: #14c531;
+        }
+
+        .form-actions button {
+            background-color: #14c531;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-actions button:hover {
+            background-color: #95f581;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Forgot Password</h2>
+    <p>Forgot your password? Fill in the following to reset your password.</p>
+    <form method="POST" onsubmit="showMessage(event)">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+        </div>
+        <div class="form-actions">
+            <button type="submit">Reset Password</button>
+        </div>
+        <div class="form-back">
+            <a href="{% url 'login' %}">Back to Login</a>
+        </div>
+    </form>
+    <p class="message" id="message"></p>
+</div>
+
+<script>
+    function showMessage(event) {
+        event.preventDefault();
+        const emailInput = document.querySelector("input[name='email']").value;
+        const message = document.getElementById("message");
+        message.textContent = `Your password reset email has been sent to ${emailInput}`;
+    }
+</script>
+
+</body>
+</html>

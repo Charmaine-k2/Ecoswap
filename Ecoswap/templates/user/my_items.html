@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2ECC71; /* Changed to green */
+            --secondary-color: #27AE60; /* Darker green */
+            --danger-color: #E74C3C;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #2C3E50;
+            --gray-color: #95A5A6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            
+            /* Light theme variables */
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2C3E50;
+            --sidebar-bg: linear-gradient(135deg, #27ae60, #2ecc71);
+            --sidebar-text: #ffffff;
+            --input-bg: #ffffff;
+            --border-color: #ddd;
+            --hover-color: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --sidebar-bg: linear-gradient(135deg, #1b5e20, #2e7d32);
+            --sidebar-text: #e0e0e0;
+            --input-bg: #2d2d2d;
+            --border-color: #333;
+            --hover-color: rgba(255, 255, 255, 0.1);
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --light-color: #2d2d2d;
+            --dark-color: #e0e0e0;
+            --gray-color: #a0a0a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Notification Badge - ADD THIS SECTION */
+        .notification-badge {
+            background-color: #e53935; /* red */
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 50%;
+            margin-left: 5px;
+            display: inline-block;
+        }
+
+        .logout-btn {
+            color: #e53935;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(229, 57, 53, 0.1);
+            color: #c62828;
+        }
+
+        /* Rest of your existing CSS remains the same */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background-color: var(--primary-color);
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+        
+        .toggle-label {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        /* Sidebar - Green Theme */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .logo h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--sidebar-text);
+            margin-top: 10px;
+        }
+        .logo .recycling-logo {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            animation: pulse 2s infinite;
+        }
+        .logo .recycling-arrow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--sidebar-text);
+            border-radius: 50%;
+            animation: rotate 5s linear infinite;
+        }
+        .logo .recycling-arrow::before {
+            content: "♻";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: var(--sidebar-text);
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .nav-links a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .nav-links a i {
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+        }
+        .nav-links a.active,
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        /* Rest of your existing CSS continues... */
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-left: 270px; /* Space for sidebar */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--gray-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .item-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .item-image::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .item-card:hover .item-image::before {
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .item-card:hover .item-image img {
+            transform: scale(1.05);
+        }
+
+        .item-details {
+            padding: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .item-details h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .item-description {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .item-category, .item-date {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .badge.badge-warning {
+            background-color: orange; /* Pending Approval = Orange */
+        }
+
+        .badge.badge-success {
+            background-color: green;  /* Approved = Green */
+        }
+
+        .item-actions {
+            display: flex;
+            padding: 0 1.25rem 1.25rem;
+            gap: 0.75rem;
+        }
+
+        .item-actions .btn {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .empty-state p {
+            color: var(--gray-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box, .filter-select {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            transition: var(--transition);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .search-box:focus, .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+        }
+
+        .search-box::placeholder {
+            color: var(--gray-color);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 10px;
+                box-shadow: none;
+            }
+            .container {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .item-list {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            .search-filter {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .search-box, .filter-select {
+                width: 100%;
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease;
+            color: var(--text-color);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            transition: var(--transition);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar" style="display: flex; flex-direction: column; justify-content: flex-start; gap: 32px;">
+     <div class="logo">
+          <div class="recycling-logo"><div class="recycling-arrow"></div></div>
+          <h2>EcoSwap</h2>
+        </div>
+        <div class="nav-links">
+          <a href="{% url 'user_dashboard' %}" class="active"
+            ><i class="fas fa-home"></i> Dashboard</a
+          >
+          <a href="{% url 'my_items' %}"
+            ><i class="fas fa-tshirt"></i> My Items</a
+          >
+          <a href="{% url 'user_add_item' %}"
+            ><i class="fas fa-plus-circle"></i> Add Item</a
+          >
+          <a href="{% url 'my_donations' %}"
+            ><i class="fas fa-hand-holding-heart"></i> My Donation Requests</a>
+          <a href="{% url 'user_profile' %}"
+            ><i class="fas fa-user-cog"></i> Profile</a
+          >
+          <a href="{% url 'chat_user' %}">
+            <i class="fas fa-comments"></i> Messages
+          </a>
+        </div>
+      <a href="{% url 'login' %}" class="logout-btn"
+        ><i class="fas fa-sign-out-alt"></i> Logout</a
+      >
+    
+    </div>
+      
+    </nav>
+</div>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>My Items</h1>
+                <p>Manage your listed items</p>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" id="themeToggle">
+                <div class="toggle-switch" id="toggleSwitch"></div>
+                <span class="toggle-label">Dark Mode</span>
+            </div>
+        </header>
+
+        <!-- Search & Filter -->
+        <form method="GET" class="search-filter">
+            <input type="text" name="q" class="search-box" placeholder="Search items..." value="{{ request.GET.q }}">
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="electronics" {% if request.GET.category == 'electronics' %}selected{% endif %}>Electronics</option>
+                <option value="furniture" {% if request.GET.category == 'furniture' %}selected{% endif %}>Furniture</option>
+                <option value="clothing" {% if request.GET.category == 'clothing' %}selected{% endif %}>Clothing</option>
+                <option value="books" {% if request.GET.category == 'books' %}selected{% endif %}>Books</option>
+                <option value="other" {% if request.GET.category == 'other' %}selected{% endif %}>Other</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+
+        <!-- Add Item Button -->
+        <div class="add-item-btn">
+            <a href="{% url 'user_add_item' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Item
+            </a>
+        </div>
+
+        <!-- Items List -->
+        <div class="item-list">
+            {% if items %}
+                {% for item in items %}
+                    <div class="item-card">
+                        <div class="item-image">
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                        </div>
+                        <div class="item-details">
+                            <h3>{{ item.name }}</h3>
+                            <p class="item-description">{{ item.description }}</p>
+                            <div class="item-meta">
+                                <span class="item-category">
+                                    <i class="fas fa-tag"></i> {{ item.get_category_display }}
+                                </span>
+                                <span class="item-date">
+                                    <i class="fas fa-calendar"></i> {{ item.created_at|date:"M d, Y" }}
+                                </span>
+                            </div>
+                            <p><strong>Condition:</strong> {{ item.condition }}</p>
+                            <p><strong>Status:</strong>
+                                {% if item.approved %}
+                              <span class="badge badge-success">Approved</span>
+                                {% else %}
+                              <span class="badge badge-warning">Pending Approval</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="item-actions">
+                            <!-- Delete Button -->
+                            <button class="btn btn-danger delete-btn" data-item-id="{{ item.id }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Items Found</h3>
+                    <p>You haven't added any items yet. Start by adding your first item.</p>
+                    <a href="{% url 'user_add_item' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Item
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal" id="deleteModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Confirm Deletion</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn close-modal">Cancel</button>
+                    <a href="#" id="confirmDeleteLink" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const body = document.body;
+        
+        // Check for saved theme preference or default to light
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        
+        if (currentTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            toggleSwitch.classList.add('active');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                toggleSwitch.classList.remove('active');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                toggleSwitch.classList.add('active');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // DOM Elements
+        const deleteModal = document.getElementById('deleteModal');
+        const confirmDeleteLink = document.getElementById('confirmDeleteLink');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+
+        // Add click event to all delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.dataset.itemId;
+                confirmDeleteLink.href = `/delete_item/${itemId}/`; // Django view to handle deletion
+                deleteModal.style.display = 'flex';
+            });
+        });
+
+        // Close modal
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => deleteModal.style.display = 'none');
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

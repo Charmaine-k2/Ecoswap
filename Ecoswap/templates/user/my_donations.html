@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Donation Requests - EcoSwap</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2ECC71;
+            --secondary-color: #27AE60;
+            --danger-color: #E74C3C;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #2C3E50;
+            --gray-color: #95A5A6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #2C3E50;
+            --sidebar-bg: linear-gradient(135deg, #27ae60, #2ecc71);
+            --sidebar-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            position: fixed;
+        }
+        .logo h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+        .nav-links a i {
+            margin-right: 10px;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .logout-btn {
+            color: #e53935;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+        }
+        .logout-btn:hover {
+            background: rgba(229, 57, 53, 0.1);
+            color: #c62828;
+        }
+
+        /* Main container */
+        .container {
+            margin-left: 270px;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #e0e0e0;
+        }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+
+        .notification-badge {
+            background-color: #e53935;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <h2>EcoSwap</h2>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'user_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'my_items' %}"><i class="fas fa-tshirt"></i> My Items</a>
+            <a href="{% url 'user_add_item' %}"><i class="fas fa-plus-circle"></i> Add Item</a>
+            <a href="{% url 'my_donations' %}"><i class="fas fa-hand-holding-heart"></i> My Donation Requests</a>
+            <a href="{% url 'user_profile' %}"><i class="fas fa-user-cog"></i> Profile</a>
+            <a href="{% url 'chat_user' %}"><i class="fas fa-comments"></i> Messages </a>
+        </div>
+        <a href="{% url 'login' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="container">
+        <h2>My Donation Requests</h2>
+
+        {% if donation_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Organization</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in donation_requests %}
+                <tr>
+                    <td>{{ request.item.name }}</td>
+                    <td>{{ request.organization|title }}</td>
+                    <td>{{ request.reason }}</td>
+                    <td class="status-{{ request.status }}">{{ request.status|title }}</td>
+                    <td>{{ request.created_at|date:"d M Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>You have not submitted any donation requests yet.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>
+

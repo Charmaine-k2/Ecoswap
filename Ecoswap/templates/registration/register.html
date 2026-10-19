@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoSwap Register</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-green: #2e7d32;
+        --light-green: #81c784;
+        --dark-green: #1b5e20;
+        --accent-green: #a5d6a7;
+        --background-light: #e8f5e9;
+        --text-dark: #263238;
+        --text-light: #f5f5f5;
+
+        /* Light theme variables */
+        --bg-color: #e8f5e9;
+        --form-bg: #ffffff;
+        --text-color: #263238;
+        --input-bg: #ffffff;
+        --input-border: #ccc;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --link-color: #2e7d32;
+        --link-hover: #1b5e20;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #1a1a1a;
+        --form-bg: #2d2d2d;
+        --text-color: #f5f5f5;
+        --input-bg: #3d3d3d;
+        --input-border: #555;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --link-color: #81c784;
+        --link-hover: #a5d6a7;
+        --primary-green: #4caf50;
+        --dark-green: #388e3c;
+      }
+
+      /* Loader */
+      #page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 3000;
+        transition: opacity 0.5s ease, visibility 0.5s;
+      }
+      #page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #page-loader i {
+        font-size: 4rem;
+        color: var(--primary-green);
+        animation: spin 2s linear infinite;
+        margin-bottom: 1rem;
+      }
+      .loader-bar {
+        width: 200px;
+        height: 8px;
+        background: #dcedc8;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .loader-fill {
+        height: 100%;
+        width: 0%;
+        background-color: var(--primary-green);
+        border-radius: 4px;
+        animation: fill 3s linear forwards;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fill {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom, #35c941ff, #1b4615ff);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      [data-theme="dark"] body {
+        background: linear-gradient(to bottom, #1a5276, #0d1b2a);
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 10;
+      }
+
+      .toggle-switch {
+        width: 50px;
+        height: 24px;
+        background-color: #ccc;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .toggle-switch.active {
+        background-color: var(--primary-green);
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(26px);
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: white;
+        font-weight: 500;
+      }
+
+      [data-theme="dark"] .toggle-label {
+        color: var(--text-color);
+      }
+
+      /* Floating leaves */
+      .leaf {
+        position: absolute;
+        width: 70px;
+        animation: float 6s ease-in-out infinite;
+        z-index: 1;
+      }
+      .leaf:nth-child(1) {
+        top: 10%;
+        left: 5%;
+      }
+      .leaf:nth-child(2) {
+        top: 30%;
+        right: 8%;
+      }
+      .leaf:nth-child(3) {
+        top: 60%;
+        left: 80%;
+      }
+      .leaf:nth-child(4) {
+        top: 75%;
+        right: 15%;
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px) rotate(5deg);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      /* Form Box */
+      .form-box {
+        background-color: var(--form-bg);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px var(--shadow-color);
+        width: 100%;
+        max-width: 450px;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      h2 {
+        color: var(--primary-green);
+        margin-bottom: 20px;
+        transition: color 0.3s;
+      }
+      .tagline-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .tagline {
+        opacity: 0;
+        transition: all 0.5s;
+        color: var(--primary-green);
+        font-weight: 600;
+      }
+      .tagline.active {
+        opacity: 1;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+        position: relative;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        transition: all 0.3s;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--primary-green);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #777;
+        transition: color 0.3s;
+      }
+      .toggle-password:hover {
+        color: var(--primary-green);
+      }
+
+      .gender-options {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 8px;
+      }
+      .gender-options label {
+        cursor: pointer;
+        color: var(--text-color);
+        transition: color 0.3s;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-green);
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        background-color: var(--dark-green);
+        transform: translateY(-2px);
+      }
+
+      .form-links {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: var(--text-color);
+      }
+      .form-links a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .form-links a:hover {
+        color: var(--link-hover);
+        text-decoration: underline;
+      }
+
+      .back-home {
+        margin-top: 20px;
+      }
+      .back-home a {
+        text-decoration: none;
+        color: var(--link-color);
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+      .back-home a:hover {
+        color: var(--link-hover);
+      }
+
+      .error {
+        color: #ff4444;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+      .success-message {
+        display: none;
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 5px;
+        color: var(--dark-green);
+        background: var(--accent-green);
+      }
+
+      /* Chatbot Button */
+      .chatbot-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-green);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.4);
+        cursor: pointer;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        animation: levitate 3s ease-in-out infinite, pulse 2s infinite;
+        text-decoration: none;
+        border: none;
+        outline: none;
+      }
+      .chatbot-button:hover {
+        transform: scale(1.1);
+        background-color: var(--dark-green);
+        box-shadow: 0 6px 25px rgba(46, 125, 50, 0.6);
+        animation: levitate-hover 1.5s ease-in-out infinite, pulse 2s infinite;
+      }
+      .chatbot-button i {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+      .chatbot-button.active i {
+        transform: rotate(360deg);
+      }
+      @keyframes levitate {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes levitate-hover {
+        0%, 100% {
+          transform: translateY(-5px) scale(1.1);
+        }
+        50% {
+          transform: translateY(-15px) scale(1.1);
+        }
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+        }
+      }
+
+      /* Chatbot Modal */
+      .chatbot-modal {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 400px;
+        height: 600px;
+        background: var(--form-bg);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--input-border);
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+      .chatbot-modal.active {
+        display: flex;
+        transform: scale(1);
+        opacity: 1;
+        animation: modalAppear 0.3s ease;
+      }
+      .chatbot-modal.closing {
+        animation: modalDisappear 0.3s ease forwards;
+      }
+      @keyframes modalAppear {
+        0% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes modalDisappear {
+        0% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.9) translateY(20px);
+          opacity: 0;
+        }
+      }
+      .chatbot-header {
+        background-color: var(--primary-green);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .chatbot-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      .close-chatbot {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+      }
+      .close-chatbot:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .chatbot-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      @keyframes logo-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-width: 480px) {
+        .gender-options {
+          flex-direction: column;
+          gap: 8px;
+        }
+        .theme-toggle {
+          position: relative;
+          top: 0;
+          right: 0;
+          justify-content: center;
+          margin-bottom: 20px;
+        }
+        .chatbot-button {
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+        }
+        .chatbot-modal {
+          width: 95%;
+          height: 70%;
+          right: 2.5%;
+          bottom: 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loader -->
+    <div id="page-loader">
+      <i class="fas fa-recycle"></i>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+      <div class="toggle-switch" id="toggleSwitch"></div>
+      <span class="toggle-label">Dark Mode</span>
+    </div>
+
+    <!-- Floating Leaves -->
+    <img src="{% static 'images/leaf.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf2.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf3.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf4.png' %}" class="leaf" />
+
+    <!-- Form Box -->
+    <div class="form-box">
+      <h2>Create Your EcoSwap Account</h2>
+      <div class="tagline-container">
+        <div class="tagline active" id="tagline1">Trade</div>
+        <div class="tagline" id="tagline2">Donate</div>
+        <div class="tagline" id="tagline3">Reuse</div>
+      </div>
+
+      {% if messages %} {% for message in messages %}
+      <div class="error">{{ message }}</div>
+      {% endfor %} {% endif %}
+
+      <form id="registrationForm" method="POST">
+        {% csrf_token %}
+        <div class="input-group">
+          <input
+            type="text"
+            name="full_name"
+            placeholder="Full Name"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <input type="text" name="username" placeholder="Username" required />
+        </div>
+        <div class="input-group">
+          <input type="email" name="email" placeholder="Email" required />
+        </div>
+        <div class="input-group">
+          <input
+            type="tel"
+            name="phone_number"
+            placeholder="Phone Number"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <textarea name="address" placeholder="Address" required></textarea>
+        </div>
+        <div class="input-group">
+          <label style="color: var(--text-color)">Gender</label>
+          <div class="gender-options">
+            <label
+              ><input type="radio" name="gender" value="Male" required />
+              Male</label
+            >
+            <label
+              ><input type="radio" name="gender" value="Female" /> Female</label
+            >
+            <label
+              ><input type="radio" name="gender" value="Other" /> Other</label
+            >
+          </div>
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+          />
+          <i class="fas fa-eye toggle-password"></i>
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            name="confirm_password"
+            placeholder="Confirm Password"
+            required
+          />
+          <i class="fas fa-eye toggle-password"></i>
+        </div>
+        <button type="submit">Register</button>
+      </form>
+
+      <div class="form-links">
+        Already have an account? <a href="{% url 'login' %}">Login here</a>
+      </div>
+
+      <div class="back-home">
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i> Back to Home</a>
+      </div>
+
+      <div id="successMessage" class="success-message">
+        Registration Successful! Welcome to EcoSwap.
+      </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-button" id="chatbotButton">
+      <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+      <div class="chatbot-header">
+        <h3>EcoSwap Assistant</h3>
+        <button class="close-chatbot" id="closeChatbot">&times;</button>
+      </div>
+      <iframe 
+        src="https://www.chatbase.co/chatbot-iframe/jE7sP4KVvNWKe6x30kWTx" 
+        class="chatbot-iframe"
+        frameborder="0"
+      ></iframe>
+    </div>
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleSwitch = document.getElementById("toggleSwitch");
+      const body = document.body;
+
+      // Check for saved theme preference or default to light
+      const currentTheme = localStorage.getItem("theme") || "light";
+
+      if (currentTheme === "dark") {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        if (body.getAttribute("data-theme") === "dark") {
+          body.removeAttribute("data-theme");
+          toggleSwitch.classList.remove("active");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          toggleSwitch.classList.add("active");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+
+      // Loader
+      const loader = document.getElementById("page-loader");
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          loader.classList.add("hidden");
+        }, 800);
+      });
+
+      // Tagline animation
+      let current = 1;
+      setInterval(() => {
+        document.getElementById(`tagline${current}`).classList.remove("active");
+        current = (current % 3) + 1;
+        document.getElementById(`tagline${current}`).classList.add("active");
+      }, 2000);
+
+      // Toggle password visibility
+      document.querySelectorAll(".toggle-password").forEach((icon) => {
+        icon.addEventListener("click", function () {
+          const input = this.previousElementSibling;
+          const type =
+            input.getAttribute("type") === "password" ? "text" : "password";
+          input.setAttribute("type", type);
+          this.classList.toggle("fa-eye");
+          this.classList.toggle("fa-eye-slash");
+        });
+      });
+
+      // Chatbot functionality
+      const chatbotButton = document.getElementById("chatbotButton");
+      const chatbotModal = document.getElementById("chatbotModal");
+      const closeChatbot = document.getElementById("closeChatbot");
+      let isChatbotOpen = false;
+
+      function openChatbot() {
+        isChatbotOpen = true;
+        chatbotButton.classList.add('active');
+        chatbotModal.classList.add('active');
+        chatbotModal.classList.remove('closing');
+      }
+
+      function closeChatbotModal() {
+        isChatbotOpen = false;
+        chatbotButton.classList.remove('active');
+        chatbotModal.classList.add('closing');
+        setTimeout(() => {
+          chatbotModal.classList.remove('active');
+          chatbotModal.classList.remove('closing');
+        }, 300);
+      }
+
+      chatbotButton.addEventListener("click", () => {
+        if (isChatbotOpen) {
+          closeChatbotModal();
+        } else {
+          openChatbot();
+        }
+      });
+
+      closeChatbot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeChatbotModal();
+      });
+
+      // Close chatbot when clicking outside
+      window.addEventListener("click", (e) => {
+        if (isChatbotOpen && !chatbotModal.contains(e.target) && e.target !== chatbotButton) {
+          closeChatbotModal();
+        }
+      });
+    </script>
+  </body>
+</html>

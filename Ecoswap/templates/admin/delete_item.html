@@ -1,0 +1,88 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Item</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .item-form-container {
+            width: 50%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-form-container h1 {
+            text-align: center;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .item-form-container p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .item-form-actions {
+            text-align: center;
+        }
+
+        .item-form-actions .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .item-form-actions .btn-primary {
+            background-color: #c0392b;
+            color: #fff;
+            border: none;
+        }
+
+        .item-form-actions .btn-primary:hover {
+            background-color: #e74c3c;
+        }
+
+        .cancel-link {
+            text-decoration: none;
+            color: #34495e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="item-form-container">
+    <h1>Delete Item</h1>
+    <p>Are you sure you want to delete <strong>{{ item.name }}</strong>?</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="item-form-actions">
+            <button type="submit" class="btn btn-primary">Confirm Delete</button>
+            <a href="{% url 'manage_items' %}" class="cancel-link">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

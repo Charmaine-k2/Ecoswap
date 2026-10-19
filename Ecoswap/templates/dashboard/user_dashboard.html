@@ -1,0 +1,1315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoSwap - User Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #2e7d32;
+        --primary-dark: #1b5e20;
+        --accent: #81c784;
+        --dark: #263238;
+        --light-bg: #e8f5e9;
+        --white: #fff;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+        /* Dark mode variables */
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #263238;
+        --sidebar-bg: linear-gradient(135deg, #27ae60, #2ecc71);
+        --sidebar-text: white;
+        --input-bg: #ffffff;
+        --border-color: #e0e0e0;
+        --hover-color: rgba(0, 0, 0, 0.05);
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --sidebar-bg: linear-gradient(135deg, #1b5e20, #2e7d32);
+        --sidebar-text: #e0e0e0;
+        --input-bg: #2d2d2d;
+        --border-color: #333333;
+        --hover-color: rgba(255, 255, 255, 0.05);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Loader */
+      #page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 3000;
+        transition: opacity 0.5s ease, visibility 0.5s;
+      }
+      #page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #page-loader i {
+        font-size: 4rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        animation: spin 2s linear infinite;
+      }
+      .loader-bar {
+        width: 200px;
+        height: 8px;
+        background: #dcedc8;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .loader-fill {
+        height: 100%;
+        width: 0%;
+        background-color: var(--primary);
+        border-radius: 4px;
+        animation: fill 3s linear forwards;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fill {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      /* Floating leaves */
+      .leaf {
+        position: absolute;
+        width: 60px;
+        animation: float 6s ease-in-out infinite;
+        z-index: 1;
+        filter: brightness(0.8);
+      }
+      .leaf:nth-child(1) {
+        top: 5%;
+        left: 5%;
+      }
+      .leaf:nth-child(2) {
+        top: 30%;
+        right: 8%;
+      }
+      .leaf:nth-child(3) {
+        top: 60%;
+        left: 80%;
+      }
+      .leaf:nth-child(4) {
+        top: 75%;
+        right: 15%;
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px) rotate(5deg);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      /* Sidebar */
+      nav {
+        width: 250px;
+        background: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: fixed;
+        height: 100vh;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+      }
+      .logo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+      }
+      .logo h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--sidebar-text);
+        margin-top: 10px;
+      }
+      .logo .recycling-logo {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        animation: pulse 2s infinite;
+      }
+      .logo .recycling-arrow {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid var(--sidebar-text);
+        border-radius: 50%;
+        animation: rotate 5s linear infinite;
+      }
+      .logo .recycling-arrow::before {
+        content: "♻";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        color: var(--sidebar-text);
+      }
+
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .nav-links a {
+        color: var(--sidebar-text);
+        text-decoration: none;
+        padding: 12px 15px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+      }
+      .nav-links a i {
+        margin-right: 10px;
+        width: 24px;
+        text-align: center;
+      }
+      .nav-links a.active,
+      .nav-links a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+      }
+      .logout-btn {
+        color: #e53935;
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+      }
+      .logout-btn:hover {
+        background: rgba(229, 57, 53, 0.1);
+        color: #c62828;
+      }
+
+      /* Notification Badge */
+      .notification-badge {
+        background-color: #e53935; /* red */
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 50%;
+        margin-left: 5px;
+        display: inline-block;
+      }
+
+      /* Content */
+      .content {
+        margin-left: 270px;
+        padding: 30px;
+        width: calc(100% - 270px);
+      }
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        animation: fadeInDown 0.5s;
+      }
+      .header-left h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+      .header-left p {
+        color: var(--text-color);
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      .profile {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        position: relative;
+      }
+      .profile-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+        border: 3px solid var(--primary);
+        animation: pulse 2s infinite;
+      }
+      .profile-info {
+        cursor: pointer;
+      }
+      .profile-info h4 {
+        font-weight: 500;
+        margin-bottom: 2px;
+        color: var(--primary);
+        transition: color 0.3s;
+      }
+      .profile-info h4:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+      }
+      .profile-info p {
+        font-size: 12px;
+        color: var(--text-color);
+        opacity: 0.7;
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+        cursor: pointer;
+      }
+      .toggle-switch {
+        width: 50px;
+        height: 24px;
+        background-color: #ccc;
+        border-radius: 12px;
+        position: relative;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+      }
+      .toggle-switch.active {
+        background-color: var(--primary);
+      }
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+      .toggle-switch.active::after {
+        transform: translateX(26px);
+      }
+      .toggle-label {
+        font-size: 14px;
+        color: var(--text-color);
+      }
+
+      /* Search & Filters */
+      .search-container {
+        margin-bottom: 30px;
+        animation: fadeIn 0.6s;
+      }
+      .search-bar {
+        display: flex;
+        background: var(--input-bg);
+        border-radius: 50px;
+        padding: 8px 20px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+      }
+      .search-bar input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 10px;
+        font-size: 16px;
+        background: transparent;
+        color: var(--text-color);
+      }
+      .search-bar input::placeholder {
+        color: var(--text-color);
+        opacity: 0.7;
+      }
+      .search-bar button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .search-bar button:hover {
+        background: var(--primary-dark);
+        transform: scale(1.05);
+      }
+      .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .filter-btn {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 14px;
+        color: var(--text-color);
+      }
+      .filter-btn:hover,
+      .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      /* Cards */
+      .dashboard-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .card {
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+        flex: 1 1 200px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.5s;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: var(--primary);
+      }
+      .card h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+      }
+      .card h3 i {
+        margin-right: 10px;
+        color: var(--primary);
+      }
+      .card p {
+        font-size: 14px;
+        color: var(--text-color);
+        opacity: 0.8;
+        margin-bottom: 15px;
+      }
+      .card .count {
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--primary);
+        margin: 10px 0;
+      }
+      .card .progress-container {
+        background: var(--border-color);
+        border-radius: 10px;
+        height: 8px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+      .card .progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        width: 0;
+        background: var(--primary);
+        transition: width 0.6s ease;
+      }
+
+      /* Items Grid */
+      .items-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 30px;
+      }
+      .item-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        cursor: pointer;
+        width: calc(33.333% - 20px);
+        border: 1px solid var(--border-color);
+      }
+      .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .item-img-container {
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+      .item-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .item-info {
+        padding: 15px;
+      }
+      .item-info h4 {
+        font-size: 16px;
+        margin-bottom: 5px;
+        color: var(--text-color);
+      }
+      .item-info p {
+        font-size: 14px;
+        color: var(--text-color);
+        opacity: 0.8;
+        margin-bottom: 5px;
+      }
+      .item-price {
+        font-weight: 600;
+        color: var(--primary);
+        margin: 8px 0;
+      }
+      .item-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 5px;
+      }
+      .status-available {
+        background: #e8f5e9;
+        color: var(--primary);
+      }
+      .status-pending {
+        background: #fff3e0;
+        color: #ff9800;
+      }
+      .status-sold {
+        background: #ffebee;
+        color: #f44336;
+      }
+      .status-donation {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+      .item-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .item-actions .buy-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .item-actions .buy-btn:hover {
+        background: var(--primary-dark);
+      }
+      .details-btn {
+        background: var(--hover-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .details-btn:hover {
+        background: var(--border-color);
+      }
+
+      /* Item Detail Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .item-modal {
+        background: var(--card-bg);
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      }
+      .modal-overlay.active .item-modal {
+        transform: translateY(0);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        position: relative;
+      }
+      .modal-header h2 {
+        font-size: 24px;
+        color: var(--text-color);
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-color);
+        opacity: 0.7;
+        transition: color 0.3s;
+      }
+      .modal-close:hover {
+        opacity: 1;
+      }
+      .modal-content {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+      .modal-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      .modal-details {
+        margin-bottom: 20px;
+      }
+      .modal-details h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: var(--text-color);
+      }
+      .modal-details p {
+        color: var(--text-color);
+        opacity: 0.8;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+      .modal-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .modal-info-item {
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-info-label {
+        font-size: 14px;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-bottom: 5px;
+      }
+      .modal-info-value {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .modal-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .modal-btn-request {
+        background-color: #ff9800;
+        color: white;
+      }
+      .modal-btn-request:hover {
+        background-color: #f57c00;
+      }
+      .modal-btn-message {
+        background-color: #2196f3;
+        color: white;
+      }
+      .modal-btn-message:hover {
+        background-color: #1976d2;
+      }
+      .modal-btn-close {
+        background-color: var(--hover-color);
+        color: var(--text-color);
+      }
+      .modal-btn-close:hover {
+        background-color: var(--border-color);
+      }
+
+      /* Toast Notification */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(150%);
+        transition: transform 0.3s ease;
+      }
+      .toast.show {
+        transform: translateX(0);
+      }
+      .toast i {
+        font-size: 20px;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+        }
+        70% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+        }
+      }
+
+      @media (max-width: 992px) {
+        nav {
+          transform: translateX(-100%);
+        }
+        .content {
+          margin-left: 0;
+          width: 100%;
+        }
+        .item-card {
+          width: calc(50% - 20px);
+        }
+      }
+      @media (max-width: 768px) {
+        .dashboard-cards {
+          flex-direction: column;
+        }
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .profile {
+          margin-top: 15px;
+        }
+        .filter-options {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .item-card {
+          width: 100%;
+        }
+        .modal-content {
+          flex-direction: column;
+        }
+        .modal-actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loader -->
+    <div id="page-loader">
+      <i class="fas fa-recycle"></i>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <i class="fas fa-check-circle"></i>
+      <span id="toast-message">Action completed successfully!</span>
+    </div>
+
+    <!-- Floating leaves -->
+    <img src="{% static 'images/leaf.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf2.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf3.png' %}" class="leaf" />
+    <img src="{% static 'images/leaf4.png' %}" class="leaf" />
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div>
+        <div class="logo">
+          <div class="recycling-logo"><div class="recycling-arrow"></div></div>
+          <h2>EcoSwap</h2>
+        </div>
+        <div class="nav-links">
+          <a href="{% url 'user_dashboard' %}" class="active"
+            ><i class="fas fa-home"></i> Dashboard</a
+          >
+          <a href="{% url 'my_items' %}"
+            ><i class="fas fa-tshirt"></i> My Items</a
+          >
+          <a href="{% url 'user_add_item' %}"
+            ><i class="fas fa-plus-circle"></i> Add Item</a
+          >
+          <a href="{% url 'my_donations' %}"
+            ><i class="fas fa-hand-holding-heart"></i> My Donation Requests</a>
+          <a href="{% url 'user_profile' %}"
+            ><i class="fas fa-user-cog"></i> Profile</a
+          >
+          <a href="{% url 'chat_user' %}">
+            <i class="fas fa-comments"></i> Messages
+          
+          </a>
+        </div>
+      </div>
+      <a href="{% url 'login' %}" class="logout-btn"
+        ><i class="fas fa-sign-out-alt"></i> Logout</a
+      >
+    </nav>
+
+    <div class="content">
+      <div class="dashboard-header">
+        <div class="header-left">
+          <h1>Welcome back, {{ user.username }}</h1>
+          <p>Browse sustainable items available for Trading & Donation</p>
+        </div>
+        <div style="display: flex; align-items: center">
+          <div class="profile">
+            <img
+              src="{% static 'images/default-avatar.png' %}"
+              class="profile-img"
+            />
+            <div class="profile-info" onclick="redirectToProfile()">
+              <h4>{{ user.username }}</h4>
+              <p>View Profile</p>
+            </div>
+          </div>
+          <div class="theme-toggle" id="themeToggle">
+            <div class="toggle-switch" id="toggleSwitch"></div>
+            <span class="toggle-label">Dark Mode</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="search-container">
+        <div class="search-bar">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search for clothes, shoes, accessories..."
+          />
+          <button type="button" id="searchButton">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+        <div class="filter-options">
+          <button class="filter-btn active" data-filter="all">All Items</button>
+          <button class="filter-btn" data-filter="shoes">Shoes</button>
+          <button class="filter-btn" data-filter="shirts">Shirts</button>
+          <button class="filter-btn" data-filter="pants">Pants</button>
+          <button class="filter-btn" data-filter="clothes">Clothes</button>
+          <button class="filter-btn" data-filter="furniture">Furniture</button>
+          <button class="filter-btn" data-filter="accessories">
+            Accessories
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="dashboard-cards">
+        <div class="card" data-filter="all">
+          <h3><i class="fas fa-tshirt"></i> Total Items</h3>
+          <p>All items available in marketplace</p>
+          <div class="count">{{ total_items }}</div>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="card" data-filter="trade">
+          <h3><i class="fas fa-shopping-cart"></i> For Trading</h3>
+          <p>Items available for Trading</p>
+          <div class="count">{{ trade_items }}</div>
+          <div class="progress-container">
+            <div
+              class="progress-bar"
+              style="width:{{ trade_percentage }}%"
+            ></div>
+          </div>
+        </div>
+        <div class="card" data-filter="donation">
+          <h3><i class="fas fa-gift"></i> For Donation</h3>
+          <p>Items available for donation</p>
+          <div class="count">{{ donation_items }}</div>
+          <div class="progress-container">
+            <div
+              class="progress-bar"
+              style="width:{{ donation_percentage }}%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Grid -->
+      <div class="items-container">
+        <h3 style="margin-bottom: 20px">Available Products</h3>
+        <div class="items-grid" id="itemsContainer">
+          {% for item in items %} {% if item.approved %}
+          <div
+            class="item-card"
+            data-category="{{ item.category|lower }}"
+            data-status="available"
+            data-type="{{ item.category }}"
+            data-username="{{ item.owner.username }}"
+          >
+            <div class="item-img-container">
+              <img
+                src="{{ item.image.url }}"
+                class="item-img"
+                data-item-id="{{ item.id }}"
+              />
+            </div>
+            <div class="item-info">
+              <h4>{{ item.name }}</h4>
+              <p>{{ item.description|truncatechars:50 }}</p>
+              <p class="item-status"> For {{ item.category }}</p>
+              <p class="listed-by">
+                Listed by: <strong>{{ item.owner.username }}</strong>
+              </p>
+              <div class="item-actions">
+                 {% if item.category|lower == 'donate' %}
+                
+    <form action="{% url 'donation' item.id %}" method="get" style="display:inline;">
+            <button 
+                type="submit" 
+                class="buy-btn"
+                data-item-id="{{ item.id }}"
+                data-item-name="{{ item.name }}"
+                data-item-owner="{{ item.owner.username }}"
+            >
+                Request Donation
+            </button>
+        </form>
+  {% else %}
+                <button
+                  class="buy-btn"
+                  data-item-id="{{ item.id }}"
+                  data-item-name="{{ item.name }}"
+                  data-item-owner="{{ item.owner.username }}"
+                >
+                  Trade Now
+                </button>
+  {% endif %}
+                <button class="details-btn" data-item-id="{{ item.id }}">
+                  Details
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endif %} {% empty %}
+          <p>No approved items available yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div class="modal-overlay" id="itemModal">
+      <div class="item-modal">
+        <div class="modal-header">
+          <h2>Item Details</h2>
+          <button class="modal-close" id="modalClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-content">
+          <img src="" alt="Item Image" class="modal-image" id="modalImage" />
+          <div class="modal-details">
+            <h3 id="modalTitle">Item Title</h3>
+            <p id="modalDescription">Item description will appear here.</p>
+            <div class="modal-info">
+              <div class="modal-info-item">
+                <span class="modal-info-label">Category</span>
+                <span class="modal-info-value" id="modalCategory"
+                  >Clothing</span
+                >
+              </div>
+              <div class="modal-info-item">
+                <span class="modal-info-label">Status</span>
+                <span class="modal-info-value" id="modalStatus">Available</span>
+              </div>
+              <div class="modal-info-item">
+                <span class="modal-info-label">Listed By</span>
+                <span class="modal-info-value" id="modalOwner">Username</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="modal-btn modal-btn-request" id="requestBtn">
+              <i class="fas fa-handshake"></i> Request
+            </button>
+            <button class="modal-btn modal-btn-message" id="messageBtn">
+              <i class="fas fa-comment"></i> Message
+            </button>
+            <button class="modal-btn modal-btn-close" id="closeModalBtn">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to redirect to profile page
+      function redirectToProfile() {
+        window.location.href = "{% url 'user_profile' %}";
+      }
+
+      // Theme toggle functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleSwitch = document.getElementById("toggleSwitch");
+      const body = document.body;
+
+      // Check for saved theme preference or default to light
+      const currentTheme = localStorage.getItem("theme") || "light";
+
+      if (currentTheme === "dark") {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        if (body.getAttribute("data-theme") === "dark") {
+          body.removeAttribute("data-theme");
+          toggleSwitch.classList.remove("active");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          toggleSwitch.classList.add("active");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          document.getElementById("page-loader").classList.add("hidden");
+        }, 800);
+      });
+
+      // Toast notification function
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        const toastMessage = document.getElementById("toast-message");
+
+        toastMessage.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // Filter and Search
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const searchButton = document.getElementById("searchButton");
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const cards = document.querySelectorAll(".dashboard-cards .card");
+        const itemsContainer = document.getElementById("itemsContainer");
+        const itemCards = itemsContainer.querySelectorAll(".item-card");
+        let activeFilter = "all";
+
+        // Filter button functionality
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+            activeFilter = button.dataset.filter;
+            filterAndSearch();
+          });
+        });
+
+        // Card filter functionality
+        cards.forEach((card) => {
+          card.addEventListener("click", () => {
+            activeFilter = card.dataset.filter;
+            cards.forEach((c) => c.classList.remove("active"));
+            card.classList.add("active");
+
+            // Also update filter buttons
+            filterButtons.forEach((btn) => {
+              if (btn.dataset.filter === activeFilter) {
+                btn.classList.add("active");
+              } else {
+                btn.classList.remove("active");
+              }
+            });
+
+            filterAndSearch();
+          });
+        });
+
+        searchButton.addEventListener("click", filterAndSearch);
+        searchInput.addEventListener("input", filterAndSearch);
+
+        function filterAndSearch() {
+          const term = searchInput.value.toLowerCase().trim();
+          itemCards.forEach((card) => {
+            const category = card.dataset.category;
+            const type = card.dataset.type;
+            const title = card.querySelector("h4").textContent.toLowerCase();
+            const desc = card.querySelector("p").textContent.toLowerCase();
+
+            // Match filter - check both category and type
+            const matchFilter =
+              activeFilter === "all" ||
+              category === activeFilter ||
+              type === activeFilter;
+
+            const matchSearch =
+              term === "" || title.includes(term) || desc.includes(term);
+
+            card.style.display = matchFilter && matchSearch ? "flex" : "none";
+            if (matchFilter && matchSearch)
+              card.style.animation = "fadeIn 0.6s ease";
+          });
+        }
+
+        // Progress Bar Animation
+        const bars = document.querySelectorAll(".progress-bar");
+        bars.forEach((bar) => {
+          const w = bar.style.width;
+          bar.style.width = "0";
+          setTimeout(() => {
+            bar.style.width = w;
+          }, 300);
+        });
+
+        // Item Modal Functionality
+        const modal = document.getElementById("itemModal");
+        const modalClose = document.getElementById("modalClose");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const requestBtn = document.getElementById("requestBtn");
+        const messageBtn = document.getElementById("messageBtn");
+
+        // Open modal when details button is clicked
+        document.querySelectorAll(".details-btn").forEach((button) => {
+          button.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const itemCard = this.closest(".item-card");
+            const img = itemCard.querySelector(".item-img");
+            const title = itemCard.querySelector("h4").textContent;
+            const description = itemCard.querySelector("p").textContent;
+            const category = itemCard.dataset.category;
+            const status = itemCard.querySelector(".item-status").textContent;
+            const owner =
+              itemCard.querySelector(".listed-by strong").textContent;
+
+            document.getElementById("modalImage").src = img.src;
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalDescription").textContent =
+              description;
+            document.getElementById("modalCategory").textContent =
+              category.charAt(0).toUpperCase() + category.slice(1);
+            document.getElementById("modalStatus").textContent = status;
+            document.getElementById("modalOwner").textContent = owner;
+
+            modal.classList.add("active");
+            document.body.style.overflow = "hidden";
+          });
+        });
+
+        // Trade Now button functionality
+        document.querySelectorAll(".buy-btn").forEach((button) => {
+          button.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const itemId = this.dataset.itemId;
+            const itemName = this.dataset.itemName;
+            const itemOwner = this.dataset.itemOwner;
+
+            // Show success message
+            showToast(
+              `Trade request sent for ${itemName}! You will be redirected to chat with ${itemOwner}.`
+            );
+
+            // Redirect to chat after a delay
+            setTimeout(() => {
+              window.location.href = "{% url 'chat_user' %}";
+            }, 2000);
+          });
+        });
+
+        // Close modal
+        function closeModal() {
+          modal.classList.remove("active");
+          document.body.style.overflow = "auto";
+        }
+
+        modalClose.addEventListener("click", closeModal);
+        closeModalBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", function (e) {
+          if (e.target === modal) {
+            closeModal();
+          }
+        });
+
+        // Request button functionality
+        requestBtn.addEventListener("click", function () {
+          const itemTitle = document.getElementById("modalTitle").textContent;
+          showToast(`Request sent for: ${itemTitle}`);
+          closeModal();
+        });
+
+        // Message button functionality
+        messageBtn.addEventListener("click", function () {
+          const owner = document.getElementById("modalOwner").textContent;
+          showToast(`Opening chat with ${owner}`);
+
+          // Redirect to chat after a delay
+          setTimeout(() => {
+            window.location.href = "{% url 'chat_user' %}";
+          }, 1500);
+
+          closeModal();
+        });
+      });
+    </script>
+  </body>
+</html>

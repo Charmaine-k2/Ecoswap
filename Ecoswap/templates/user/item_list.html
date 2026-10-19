@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Item List - EcoSwap</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* CSS Variables for Theme */
+      :root {
+        --bg-color: #f4f4f9;
+        --card-bg: #ffffff;
+        --text-color: #333;
+        --sidebar-bg: #4caf50;
+        --sidebar-text: #fff;
+        --header-bg: transparent;
+        --border-color: #ddd;
+        --hover-color: #388e3c;
+        --accent-color: #4caf50;
+        --accent-hover: #45a049;
+        --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --sidebar-bg: #1b5e20;
+        --sidebar-text: #e0e0e0;
+        --header-bg: #1e1e1e;
+        --border-color: #333;
+        --hover-color: #2e7d32;
+        --accent-color: #4caf50;
+        --accent-hover: #66bb6a;
+        --shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Reset some default styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+        background-color: var(--header-bg);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      h1 {
+        color: var(--accent-color);
+        margin-bottom: 15px;
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 15px 0;
+        gap: 10px;
+      }
+
+      .toggle-switch {
+        width: 50px;
+        height: 24px;
+        background-color: #ccc;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .toggle-switch.active {
+        background-color: var(--accent-color);
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(26px);
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: var(--text-color);
+      }
+
+      .item-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        justify-items: center;
+      }
+
+      .item-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 300px;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .item-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .item-card .content {
+        padding: 15px;
+      }
+
+      .item-card .content h3 {
+        font-size: 18px;
+        color: var(--text-color);
+        margin-bottom: 10px;
+      }
+
+      .item-card .content p {
+        font-size: 14px;
+        color: var(--text-color);
+        opacity: 0.8;
+        margin-bottom: 15px;
+      }
+
+      .item-card .content .category {
+        font-size: 12px;
+        color: var(--accent-color);
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .item-card .content .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .item-card .content .actions a {
+        text-decoration: none;
+        color: var(--accent-color);
+        font-size: 14px;
+        font-weight: bold;
+        transition: color 0.3s;
+        padding: 5px 10px;
+        border-radius: 4px;
+      }
+
+      .item-card .content .actions a:hover {
+        color: var(--accent-hover);
+        background-color: rgba(76, 175, 80, 0.1);
+      }
+
+      /* Sidebar styles */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 220px;
+        height: 100%;
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
+        padding: 30px 15px;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        z-index: 100;
+      }
+
+      .sidebar h2 {
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: var(--sidebar-text);
+        letter-spacing: 1px;
+      }
+
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .sidebar nav a {
+        color: var(--sidebar-text);
+        text-decoration: none;
+        font-size: 16px;
+        padding: 8px 12px;
+        transition: background 0.2s, color 0.2s;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sidebar nav a:hover {
+        background: var(--hover-color);
+        color: #e0f2f1;
+      }
+
+      .sidebar nav a i {
+        width: 20px;
+        text-align: center;
+      }
+
+      body {
+        margin-left: 240px; /* Make space for sidebar */
+      }
+
+      header {
+        margin-left: 240px;
+      }
+
+      .item-list {
+        margin-left: 240px;
+      }
+
+      /* Header Navigation */
+      header nav {
+        margin-top: 10px;
+      }
+
+      header nav a {
+        color: var(--accent-color);
+        text-decoration: none;
+        margin: 0 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+
+      header nav a:hover {
+        background-color: rgba(76, 175, 80, 0.1);
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-left: 240px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 180px;
+        }
+
+        body,
+        header,
+        .item-list,
+        .empty-state {
+          margin-left: 200px;
+        }
+
+        .item-list {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+      }
+
+      @media (max-width: 576px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s;
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        body,
+        header,
+        .item-list,
+        .empty-state {
+          margin-left: 0;
+        }
+
+        .menu-toggle {
+          display: block;
+          position: fixed;
+          top: 15px;
+          left: 15px;
+          z-index: 101;
+          background: var(--accent-color);
+          color: white;
+          border: none;
+          padding: 10px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>EcoSwap</h2>
+      <nav>
+        <a href="{% url 'user_dashboard' %}"
+          ><i class="fas fa-home"></i> Dashboard</a
+        >
+        <a href="{% url 'my_items' %}"
+          ><i class="fas fa-tshirt"></i> My Items</a
+        >
+        <a href="{% url 'my_donations' %}"><i class="fas fa-hand-holding-heart"></i> My Donation Requests</a>
+        <a href="{% url 'user_add_item' %}"
+          ><i class="fas fa-plus-circle"></i> Add Item</a
+        >
+        <a href="{% url 'user_profile' %}"
+          ><i class="fas fa-user-cog"></i> Profile</a
+        >
+        <a href="{% url 'chat_user' %}"
+          ><i class="fas fa-comments"></i> Messages</a
+        >
+        <a href="{% url 'logout' %}"
+          ><i class="fas fa-sign-out-alt"></i> Logout</a
+        >
+      </nav>
+    </div>
+
+    <!-- Mobile Menu Toggle (hidden on larger screens) -->
+    <button class="menu-toggle" id="menuToggle" style="display: none">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <header>
+      <h1>EcoSwap - Item List</h1>
+
+      <!-- Theme Toggle -->
+      <div class="theme-toggle" id="themeToggle">
+        <div class="toggle-switch" id="toggleSwitch"></div>
+        <span class="toggle-label">Dark Mode</span>
+      </div>
+
+      <nav>
+        <a href="{% url 'profile' %}">Profile</a> |
+        <a href="{% url 'add_item' %}">Add Items</a> |
+        <a href="{% url 'logout' %}">Logout</a>
+      </nav>
+    </header>
+
+    <div class="item-list">
+      {% for item in items %}
+      <div class="item-card">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" />
+        {% else %}
+        <img src="{% static 'default-image.jpg' %}" alt="No image available" />
+        {% endif %}
+        <div class="content">
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.description|truncatewords:20 }}</p>
+          <div class="category">{{ item.category }}</div>
+          <div class="actions">
+            <a href="{% url 'item_detail' item.pk %}">View Details</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'add_to_cart' item.pk %}">Add to Cart</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <p>No items available at the moment. Please check back later.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleSwitch = document.getElementById("toggleSwitch");
+      const body = document.body;
+
+      // Check for saved theme preference or default to light
+      const currentTheme = localStorage.getItem("theme") || "light";
+
+      if (currentTheme === "dark") {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        if (body.getAttribute("data-theme") === "dark") {
+          body.removeAttribute("data-theme");
+          toggleSwitch.classList.remove("active");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          toggleSwitch.classList.add("active");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+
+      // Mobile menu toggle
+      const menuToggle = document.getElementById("menuToggle");
+      const sidebar = document.querySelector(".sidebar");
+
+      // Show menu toggle on mobile screens
+      if (window.innerWidth <= 576) {
+        menuToggle.style.display = "block";
+      }
+
+      menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+      });
+
+      // Update on window resize
+      window.addEventListener("resize", () => {
+        if (window.innerWidth <= 576) {
+          menuToggle.style.display = "block";
+        } else {
+          menuToggle.style.display = "none";
+          sidebar.classList.remove("active");
+        }
+      });
+    </script>
+  </body>
+</html>

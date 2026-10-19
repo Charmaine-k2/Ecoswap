@@ -1,0 +1,222 @@
+<!-- donation.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate Item - EcoSwap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #b3ebc4;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        .item-list {
+            display: flex;
+            justify-content: center;
+        }
+
+        .item-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .item-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .item-card .content {
+            padding: 20px;
+        }
+
+        .item-card .content h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .item-card .content p {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .item-card .content .category {
+            font-size: 12px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .item-card .content .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-card .content .actions a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-size: 14px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .item-card .content .actions a:hover {
+            color: #45a049;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #044b08;
+        }
+
+
+        form {
+            margin-top: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .message-container {
+  margin: 15px auto;
+  width: 90%;
+  max-width: 600px;
+}
+.alert {
+  background-color: #d1e7dd;
+  color: #f14805;
+  border: 1px solid #badbcc;
+  border-radius: 8px;
+  padding: 10px 15px;
+  text-align: center;
+  font-weight: 500;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EcoSwap - Request Donation</h1>
+       {% if messages %}
+  <div class="message-container">
+    {% for message in messages %}
+      <div class="alert alert-success">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %} 
+    </header>
+
+    <div class="item-list">
+        <div class="item-card">
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+            <div class="content">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.description }}</p>
+                <span class="category">For {{ item.category }}</span>
+                <p>Are you sure you want to request donation for this item?</p>
+                <p>Fill the form to complete request</p>
+
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    
+                   
+                    <label for="reason">Reason for Request:</label>
+                    <textarea id="reason" name="reason" rows="4" required></textarea>
+
+                    <label for="organization">Donation Organization:</label>
+                    <select id="organization" name="organization" required>
+                        <option value="">-- Select --</option>
+                        <option value="personal">Personal</option>
+                        <option value="old_age_home">Old Age Home</option>
+                        <option value="foster_care">Foster Care</option>
+                        <option value="orphanage">Orphanage</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <label for="full_name">Full Name:</label>
+                    <input type="text" id="full_name" name="full_name" required>
+
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" required>
+
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <label for="address">Street Address:</label>
+                    <input type="text" id="address" name="address" required>
+
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" required>
+
+                    <label for="postal_code">Postal Code:</label>
+                    <input type="text" id="postal_code" name="postal_code" required>
+                  
+                   <div>
+
+                   <button type="button" onclick="window.location.href='{% url 'user_dashboard' %}'"><i class="fas fa-home"></i> Cancel</button>
+                    <button type="submit">Request Donation</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

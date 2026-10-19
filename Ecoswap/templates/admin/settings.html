@@ -1,0 +1,1227 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Settings - EcoSwap</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-dark: #1b5e20;
+      --accent: #81c784;
+      --dark: #263238;
+      --light-bg: #e8f5e9;
+      --white: #fff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+      /* Dark mode variables */
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #263238;
+      --sidebar-bg: linear-gradient(135deg, #01220f, #063f1e);
+      --sidebar-text: white;
+      --input-bg: #ffffff;
+      --border-color: #e0e0e0;
+      --hover-color: rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
+      --sidebar-bg: linear-gradient(135deg, #1b5e20, #2e7d32);
+      --sidebar-text: #e0e0e0;
+      --input-bg: #2d2d2d;
+      --border-color: #333333;
+      --hover-color: rgba(255, 255, 255, 0.05);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Loader */
+    #page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    #page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    #page-loader i {
+      font-size: 4rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      animation: spin 2s linear infinite;
+    }
+    .loader-bar {
+      width: 200px;
+      height: 8px;
+      background: #dcedc8;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .loader-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 4px;
+      animation: fill 3s linear forwards;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes fill {
+      0% {
+        width: 0%;
+      }
+      100% {
+        width: 100%;
+      }
+    }
+
+    /* Floating leaves */
+    .leaf {
+      position: absolute;
+      width: 60px;
+      animation: float 6s ease-in-out infinite;
+      z-index: 1;
+      filter: brightness(0.8);
+    }
+    .leaf:nth-child(1) {
+      top: 5%;
+      left: 5%;
+    }
+    .leaf:nth-child(2) {
+      top: 30%;
+      right: 8%;
+    }
+    .leaf:nth-child(3) {
+      top: 60%;
+      left: 80%;
+    }
+    .leaf:nth-child(4) {
+      top: 75%;
+      right: 15%;
+    }
+    @keyframes float {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-15px) rotate(5deg);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: fixed;
+      height: 100vh;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+    .logo h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--sidebar-text);
+      margin-top: 10px;
+    }
+    .logo .recycling-logo {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      animation: pulse 2s infinite;
+    }
+    .logo .recycling-arrow {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid var(--sidebar-text);
+      border-radius: 50%;
+      animation: rotate 5s linear infinite;
+    }
+    .logo .recycling-arrow::before {
+      content: "♻";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      color: var(--sidebar-text);
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .sidebar a i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      color: #e53935;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    .logout-btn:hover {
+      background: rgba(229, 57, 53, 0.1);
+      color: #c62828;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      animation: fadeInDown 0.5s;
+    }
+
+    .dashboard-header h1 {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 8px 15px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+    }
+
+    .profile span {
+      font-size: 1rem;
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      cursor: pointer;
+    }
+    .toggle-switch {
+      width: 50px;
+      height: 24px;
+      background-color: #ccc;
+      border-radius: 12px;
+      position: relative;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+    }
+    .toggle-switch.active {
+      background-color: var(--primary);
+    }
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+    .toggle-switch.active::after {
+      transform: translateX(26px);
+    }
+    .toggle-label {
+      font-size: 14px;
+      color: var(--text-color);
+    }
+
+    /* Container */
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 0.5s;
+    }
+
+    .container h2 {
+      color: var(--primary);
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Settings Tabs */
+    .settings-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      background: var(--hover-color);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Profile Section */
+    .profile-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .profile-header {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 30px;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary);
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .profile-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-header h3 {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .profile-header p {
+      font-size: 1rem;
+      color: var(--text-color);
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+
+    .edit-profile-btn {
+      position: absolute;
+      top: 0;
+      right: -20px;
+      background: var(--primary);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .edit-profile-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.1);
+    }
+
+    .profile-fields {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--input-bg);
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .field-row:hover {
+      transform: translateX(5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .field-row label {
+      font-weight: 600;
+      color: var(--text-color);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-row input {
+      flex: 2;
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      color: var(--text-color);
+      text-align: right;
+      outline: none;
+    }
+
+    .field-row input[readonly] {
+      pointer-events: none;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    /* Settings Form */
+    .settings-group {
+      margin-bottom: 25px;
+      animation: fadeInUp 0.6s;
+    }
+
+    .settings-group label {
+      font-weight: 600;
+      color: var(--text-color);
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-group input,
+    .settings-group select,
+    .settings-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .settings-group input:focus,
+    .settings-group select:focus,
+    .settings-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+    }
+
+    /* Password Wrapper */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .password-wrapper input {
+      padding-right: 50px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      width: 100%;
+    }
+
+    .eye-button {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--text-color);
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    .eye-button:hover {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    /* Save Button */
+    .save-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .save-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Danger Zone */
+    .danger-zone {
+      border: 2px solid #e53935;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 40px;
+      background: rgba(229, 57, 53, 0.05);
+    }
+
+    .danger-zone h3 {
+      color: #e53935;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .danger-btn {
+      background: #e53935;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .danger-btn:hover {
+      background: #c62828;
+      transform: translateY(-2px);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+    .toast i {
+      font-size: 20px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+      }
+      70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+      .content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+        padding: 20px;
+      }
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .profile {
+        margin-top: 15px;
+      }
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+      }
+      .field-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .field-row input {
+        text-align: left;
+        width: 100%;
+      }
+      .settings-tabs {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .content {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loader -->
+  <div id="page-loader">
+    <i class="fas fa-recycle"></i>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Settings saved successfully!</span>
+  </div>
+
+  <!-- Floating leaves -->
+  <img src="{% static 'images/leaf.png' %}" class="leaf" />
+  <img src="{% static 'images/leaf2.png' %}" class="leaf" />
+  <img src="{% static 'images/leaf3.png' %}" class="leaf" />
+  <img src="{% static 'images/leaf4.png' %}" class="leaf" />
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+      <div>
+        <div class="logo">
+          <div class="recycling-logo"><div class="recycling-arrow"></div></div>
+          <h2>EcoSwap Admin</h2>
+        </div>
+        <a href="/admin_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/manage_user"><i class="fas fa-users"></i> Manage Users</a>
+        <a href="/manage_items"><i class="fas fa-recycle"></i> Manage Items</a>
+        <a href="/donation_requests"><i class="fas fa-hand-holding-heart"></i> Donation Requests</a>
+        <a href="/settings" class="active"><i class="fas fa-cog"></i> Settings</a>
+        <a href="/logistic"><i class="fas fa-recycle"></i> Delivery tracking</a>
+      </div>
+      <div>
+       
+        <a href="/login" class="logout-btn"
+          ><i class="fas fa-sign-out-alt"></i> Logout</a
+        >
+      </div>
+    </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="dashboard-header">
+      <h1>Admin Settings</h1>
+      <div style="display: flex; align-items: center">
+        <div class="profile">
+          <img
+            src="{% static 'images/default-avatar.png' %}"
+            alt="Profile Image"
+            class="profile-img"
+          />
+          <span>{% firstof user.username "Admin User" %}</span>
+        </div>
+        <div class="theme-toggle" id="themeToggle">
+          <div class="toggle-switch" id="toggleSwitch"></div>
+          <span class="toggle-label">Dark Mode</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2><i class="fas fa-cog"></i> Admin Settings</h2>
+
+      <!-- Settings Tabs -->
+      <div class="settings-tabs">
+        <button class="tab-btn active" data-tab="profile">
+          <i class="fas fa-user"></i> Profile
+        </button>
+        <button class="tab-btn" data-tab="general">
+          <i class="fas fa-cogs"></i> General
+        </button>
+        <button class="tab-btn" data-tab="security">
+          <i class="fas fa-shield-alt"></i> Security
+        </button>
+        <button class="tab-btn" data-tab="notifications">
+          <i class="fas fa-bell"></i> Notifications
+        </button>
+      </div>
+
+      <!-- Profile Tab -->
+      <div class="tab-content active" id="profile-tab">
+        <div class="profile-section">
+          <div class="profile-header">
+            <img src="{% static 'images/default-avatar.png' %}" alt="Profile Image" class="profile-avatar" id="profileAvatar">
+            <h3>{% firstof user.full_name "Shisana Charmaine" %}</h3>
+            <p>@{% firstof user.username "admin" %}</p>
+            <button class="edit-profile-btn" id="editProfileBtn"><i class="fas fa-edit"></i></button>
+          </div>
+
+          <div class="profile-fields">
+            <div class="field-row">
+              <label><i class="fas fa-user"></i> Username</label>
+              <input type="text" name="username" value="{% firstof user.username 'admin' %}" readonly>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" name="email" value="{% firstof user.email 'admin@ecoswap.com' %}" readonly>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-lock"></i> Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="text"
+                  id="maskedPassword"
+                  value="••••••••••••"
+                  readonly
+                >
+                <button type="button" onclick="togglePassword()" class="eye-button">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-home"></i> Address</label>
+              <input type="text" name="address" value="{% firstof user.address 'New Park, Kimberley 0831' %}" readonly>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-user-tag"></i> Nickname</label>
+              <input type="text" name="nickname" value="{% firstof user.nickname 'Xamie' %}" readonly>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-venus-mars"></i> Gender</label>
+              <input type="text" name="gender" value="{% firstof user.gender 'Female' %}" readonly>
+            </div>
+            <div class="field-row">
+              <label><i class="fas fa-birthday-cake"></i> DOB</label>
+              <input type="text" name="dob" value="{% firstof user.dob 'Aug 04, 2002' %}" readonly>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveProfileChanges()">
+          <i class="fas fa-save"></i> Save Profile Changes
+        </button>
+      </div>
+
+      <!-- General Tab -->
+      <div class="tab-content" id="general-tab">
+        <form method="POST" enctype="multipart/form-data" id="generalForm">
+          {% csrf_token %}
+
+          <div class="settings-group">
+            <label for="site_title"><i class="fas fa-heading"></i> Site Title</label>
+            <input type="text" id="site_title" name="site_title" value="{% firstof settings.site_title 'EcoSwap' %}" placeholder="Enter site title">
+          </div>
+
+          <div class="settings-group">
+            <label for="site_description"><i class="fas fa-align-left"></i> Site Description</label>
+            <textarea id="site_description" name="site_description" rows="3" placeholder="Enter site description">{% firstof settings.site_description 'Sustainable trading and donation platform' %}</textarea>
+          </div>
+
+          <div class="settings-group">
+            <label for="theme"><i class="fas fa-paint-brush"></i> Theme</label>
+            <select id="theme" name="theme" onchange="previewTheme(this.value)">
+              <option value="light" {% if settings.theme == 'light' %}selected{% endif %}>Light</option>
+              <option value="dark" {% if settings.theme == 'dark' %}selected{% endif %}>Dark</option>
+              <option value="blue" {% if settings.theme == 'blue' %}selected{% endif %}>Blue</option>
+              <option value="green" {% if settings.theme == 'green' %}selected{% endif %}>Green</option>
+            </select>
+          </div>
+
+          <div class="settings-group">
+            <label for="timezone"><i class="fas fa-clock"></i> Timezone</label>
+            <select id="timezone" name="timezone">
+              <option value="Africa/Johannesburg" {% if settings.timezone == 'Africa/Johannesburg' %}selected{% endif %}>Africa/Johannesburg</option>
+              <option value="UTC" {% if settings.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+              <option value="America/New_York" {% if settings.timezone == 'America/New_York' %}selected{% endif %}>America/New_York</option>
+              <option value="Asia/Tokyo" {% if settings.timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo</option>
+            </select>
+          </div>
+
+          <div class="settings-group">
+            <label for="profile_image"><i class="fas fa-image"></i> Profile Image</label>
+            <input type="file" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(this)">
+          </div>
+
+          <button type="button" class="save-btn" onclick="saveGeneralSettings()">
+            <i class="fas fa-save"></i> Save General Settings
+          </button>
+        </form>
+      </div>
+
+      <!-- Security Tab -->
+      <div class="tab-content" id="security-tab">
+        <div class="settings-group">
+          <label><i class="fas fa-lock"></i> Change Password</label>
+          <input type="password" placeholder="Current password" class="password-field">
+          <input type="password" placeholder="New password" class="password-field" style="margin-top: 10px;">
+          <input type="password" placeholder="Confirm new password" class="password-field" style="margin-top: 10px;">
+        </div>
+
+        <div class="settings-group">
+          <label><i class="fas fa-shield-alt"></i> Two-Factor Authentication</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="twoFactor" name="twoFactor">
+            <label for="twoFactor" style="margin: 0; font-weight: normal;">Enable two-factor authentication</label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label><i class="fas fa-history"></i> Session Management</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="autoLogout" name="autoLogout" checked>
+            <label for="autoLogout" style="margin: 0; font-weight: normal;">Auto logout after 30 minutes of inactivity</label>
+          </div>
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveSecuritySettings()">
+          <i class="fas fa-save"></i> Update Security Settings
+        </button>
+
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+          <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+          <p style="margin-bottom: 15px; color: var(--text-color); opacity: 0.8;">
+            These actions are irreversible. Please proceed with caution.
+          </p>
+          <button type="button" class="danger-btn" onclick="showConfirmModal('clearData')">
+            <i class="fas fa-trash"></i> Clear All Data
+          </button>
+          <button type="button" class="danger-btn" onclick="showConfirmModal('resetSettings')" style="margin-left: 10px;">
+            <i class="fas fa-redo"></i> Reset to Defaults
+          </button>
+        </div>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="tab-content" id="notifications-tab">
+        <div class="settings-group">
+          <label><i class="fas fa-bell"></i> Email Notifications</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
+            <label for="emailNotifications" style="margin: 0; font-weight: normal;">Receive email notifications</label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label><i class="fas fa-user-plus"></i> New User Alerts</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="newUserAlerts" name="newUserAlerts" checked>
+            <label for="newUserAlerts" style="margin: 0; font-weight: normal;">Notify when new users register</label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label><i class="fas fa-shopping-cart"></i> Trade Notifications</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="tradeNotifications" name="tradeNotifications" checked>
+            <label for="tradeNotifications" style="margin: 0; font-weight: normal;">Notify about new trade requests</label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label><i class="fas fa-gift"></i> Donation Alerts</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="donationAlerts" name="donationAlerts" checked>
+            <label for="donationAlerts" style="margin: 0; font-weight: normal;">Notify about new donations</label>
+          </div>
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveNotificationSettings()">
+          <i class="fas fa-save"></i> Save Notification Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById("themeToggle");
+    const toggleSwitch = document.getElementById("toggleSwitch");
+    const body = document.body;
+
+    // Check for saved theme preference or default to light
+    const currentTheme = localStorage.getItem("theme") || "light";
+
+    if (currentTheme === "dark") {
+      body.setAttribute("data-theme", "dark");
+      toggleSwitch.classList.add("active");
+    }
+
+    themeToggle.addEventListener("click", () => {
+      if (body.getAttribute("data-theme") === "dark") {
+        body.removeAttribute("data-theme");
+        toggleSwitch.classList.remove("active");
+        localStorage.setItem("theme", "light");
+      } else {
+        body.setAttribute("data-theme", "dark");
+        toggleSwitch.classList.add("active");
+        localStorage.setItem("theme", "dark");
+      }
+    });
+
+    // Loader
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("page-loader").classList.add("hidden");
+      }, 800);
+    });
+
+    // Toast notification function
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMessage = document.getElementById("toast-message");
+
+      toastMessage.textContent = message;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+      });
+    });
+
+    // Password toggle function
+    function togglePassword() {
+      const input = document.getElementById("maskedPassword");
+      const eyeButton = document.querySelector('.eye-button i');
+      const isMasked = input.value === "••••••••••••";
+
+      if (isMasked) {
+        input.value = "admin123";
+        eyeButton.classList.remove('fa-eye');
+        eyeButton.classList.add('fa-eye-slash');
+      } else {
+        input.value = "••••••••••••";
+        eyeButton.classList.remove('fa-eye-slash');
+        eyeButton.classList.add('fa-eye');
+      }
+    }
+
+    // Profile edit toggle
+    let isEditing = false;
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+      const inputs = document.querySelectorAll('.profile-fields input');
+      const editBtn = document.getElementById('editProfileBtn');
+      
+      if (!isEditing) {
+        // Enable editing
+        inputs.forEach(input => {
+          if (input.id !== 'maskedPassword') {
+            input.removeAttribute('readonly');
+            input.style.background = 'var(--input-bg)';
+            input.style.border = '1px solid var(--primary)';
+            input.style.padding = '8px 12px';
+            input.style.borderRadius = '6px';
+            input.style.textAlign = 'left';
+          }
+        });
+        editBtn.innerHTML = '<i class="fas fa-check"></i>';
+        editBtn.style.background = '#27ae60';
+        showToast('Profile editing enabled');
+      } else {
+        // Save changes
+        inputs.forEach(input => {
+          input.setAttribute('readonly', 'true');
+          input.style.background = 'transparent';
+          input.style.border = 'none';
+          input.style.padding = '0';
+          input.style.borderRadius = '0';
+          input.style.textAlign = 'right';
+        });
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.style.background = 'var(--primary)';
+        showToast('Profile changes saved');
+      }
+      
+      isEditing = !isEditing;
+    });
+
+    // Image preview
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profileAvatar').src = e.target.result;
+          showToast('Profile image updated');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Theme preview
+    function previewTheme(theme) {
+      showToast(`Theme preview: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
+    }
+
+    // Save functions
+    function saveProfileChanges() {
+      showToast('Profile changes saved successfully!');
+    }
+
+    function saveGeneralSettings() {
+      showToast('General settings saved successfully!');
+    }
+
+    function saveSecuritySettings() {
+      showToast('Security settings updated successfully!');
+    }
+
+    function saveNotificationSettings() {
+      showToast('Notification settings saved successfully!');
+    }
+
+    // Danger zone actions
+    function showConfirmModal(action) {
+      const messages = {
+        'clearData': 'Are you sure you want to clear all data? This action cannot be undone!',
+        'resetSettings': 'Are you sure you want to reset all settings to default?'
+      };
+      
+      if (confirm(messages[action])) {
+        showToast(`${action === 'clearData' ? 'Data cleared' : 'Settings reset'} successfully!`);
+      }
+    }
+
+    // Auto-show success message if URL has success parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success')) {
+      showToast('Settings saved successfully!');
+    }
+
+    // Interactive avatar click
+    document.getElementById('profileAvatar').addEventListener('click', function() {
+      document.getElementById('profile_image').click();
+    });
+  </script>
+</body>
+</html>
